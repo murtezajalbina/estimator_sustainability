@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TopWidgetsComponent } from './top-widgets.component';
+import { TestD3PlotComponent } from './test-d3-plot.component';
 
-describe('TopWidgetsComponent', () => {
-  let component: TopWidgetsComponent;
-  let fixture: ComponentFixture<TopWidgetsComponent>;
+describe('TestD3PlotComponent', () => {
+  let component: TestD3PlotComponent;
+  let fixture: ComponentFixture<TestD3PlotComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TopWidgetsComponent]
+      imports: [TestD3PlotComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(TopWidgetsComponent);
+    fixture = TestBed.createComponent(TestD3PlotComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

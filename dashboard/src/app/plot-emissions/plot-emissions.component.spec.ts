@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EmissionsComponent } from './emissions.component';
+import { PlotEmissionsComponent } from './plot-emissions.component';
 
-describe('EmissionsComponent', () => {
-  let component: EmissionsComponent;
-  let fixture: ComponentFixture<EmissionsComponent>;
+describe('PlotEmissionsComponent', () => {
+  let component: PlotEmissionsComponent;
+  let fixture: ComponentFixture<PlotEmissionsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EmissionsComponent]
+      imports: [PlotEmissionsComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(EmissionsComponent);
+    fixture = TestBed.createComponent(PlotEmissionsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

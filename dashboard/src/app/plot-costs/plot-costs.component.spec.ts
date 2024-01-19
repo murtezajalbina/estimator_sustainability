@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MainComponent } from './main.component';
+import { PlotCostsComponent } from './plot-costs.component';
 
-describe('MainComponent', () => {
-  let component: MainComponent;
-  let fixture: ComponentFixture<MainComponent>;
+describe('PlotCostsComponent', () => {
+  let component: PlotCostsComponent;
+  let fixture: ComponentFixture<PlotCostsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MainComponent]
+      imports: [PlotCostsComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(MainComponent);
+    fixture = TestBed.createComponent(PlotCostsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
