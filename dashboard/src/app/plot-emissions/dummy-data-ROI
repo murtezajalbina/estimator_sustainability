@@ -1,0 +1,10 @@
+[
+    {
+        "Einnahmen_pro_Produkt": [
+           { "Produkt": "Drive 1", "Einnahmen": 30 },
+           { "Produkt": "Drive 2", "Einnahmen": 70 }
+            
+        ]
+        
+    }
+]
