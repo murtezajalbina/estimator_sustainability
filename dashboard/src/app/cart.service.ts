@@ -82,10 +82,10 @@ export class DataServiceCosts {
 
     {
       Kosten_pro_Maßnahme: [
-        { measure: 'process efficacy', costs: 50 },
-        { measure: 'switch technology', costs: 90 },
-        { measure: 'reduce waste', costs: 80 },
-        { measure: 'green compounds', costs: 40 },
+        { measure: 'process efficacy', costs: 560 },
+        { measure: 'switch technology', costs: 400 },
+        { measure: 'reduce waste', costs: 208 },
+        { measure: 'green compounds', costs: 600 },
       ],
     },
   ];
