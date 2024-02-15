@@ -1,6 +1,10 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import _ from 'lodash';
+import {
+  DataServiceEmissions,
+  DataServiceColors,
+} from '../cart.service'; //service for injecting data
 
 @Component({
   selector: 'app-plot-emissions',
@@ -11,18 +15,30 @@ import _ from 'lodash';
 })
 export class PlotEmissionsComponent implements OnInit {
   [x: string]: any;
+
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
 
+  constructor(
+    private dataService: DataServiceEmissions,
+    private dataColors: DataServiceColors
+  ) {}
+
   ngOnInit(): void {
+    this.dataService.getData().subscribe((data) => {
+      //read emissions data
+      this['data'] = data;
+    });
+    this.dataColors.getData().subscribe((color) => {
+      //read color data
+      this['colorPalette'] = color;
+    });
     this.createBarChart();
   }
-
-  public cap = require('../data/CAP.json');
-  public colorPalette = this.cap.dataColors;
 
   private createBarChart(): void {
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
 
+    //Type of Emissions Data
     type DataProp = {
       product: string;
       sales: YearSales[];
@@ -40,26 +56,13 @@ export class PlotEmissionsComponent implements OnInit {
       components: DataPoint[];
     };
 
-    const data: DataProp[] = require('../data/dummy-data-emissions.json');
+    const data: DataProp[] = this['data'];
 
     const selectedProduct = data[0]; // todo change this in future for product selection
-
-    const yearArray = selectedProduct.sales.map((s) => s.year.toString());
-    const calculateMaxEmission = (): number => {
-      const emissionArray: number[] = selectedProduct.sales.map((s) =>
-        calculateMaxEmissionPerYear(s)
-      );
-      return Math.max(...emissionArray);
-    };
 
     const calcualteEmission = (component: DataPoint, volume: number) => {
       return component.emission * component.quantity * volume;
     };
-
-    /*  // das gleiche wie oben 
-    function myCalculateEmission(component : DataPoint , volume : number){
-      return component.emission*component.quantity*volume;
-    } */
 
     const calculateMaxEmissionPerYear = (sale: YearSales): number => {
       const volume = sale.volume;
@@ -70,9 +73,17 @@ export class PlotEmissionsComponent implements OnInit {
       return resultArray;
     };
 
-    const margin = { top: 20, right: 90, bottom: 30, left: 80 };
+    // Calculate all emissions for height of the plot
+    const calculateMaxEmission = (): number => {
+      const emissionArray: number[] = selectedProduct.sales.map((s) =>
+        calculateMaxEmissionPerYear(s)
+      );
+      return Math.max(...emissionArray);
+    };
+
+    const margin = { top: 60, right: 90, bottom: 50, left: 80 };
     const width = 400 - margin.left - margin.right;
-    const height = 250 - margin.top - margin.bottom;
+    const height = 300 - margin.top - margin.bottom;
 
     const svg = d3
       .select(this.chartContainer.nativeElement)
@@ -100,15 +111,15 @@ export class PlotEmissionsComponent implements OnInit {
     const colorScale: d3.ScaleOrdinal<string, string> = d3
       .scaleOrdinal<string>()
       .domain(materials)
-      .range(this.colorPalette.slice(0, materials.length));
+      .range(this['colorPalette'].slice(0, materials.length));
 
-    // X-Achse hinzufügen
+    // add x axis
     svg
       .append('g')
       .attr('transform', 'translate(0,' + height + ')')
       .call(d3.axisBottom(x));
 
-    // Y-Achse hinzufügen
+    // add y axis
     svg.append('g').call(d3.axisLeft(y));
 
     type SeriesProp = {
@@ -149,17 +160,7 @@ export class PlotEmissionsComponent implements OnInit {
       {}
     );
 
-    /*  console.log("aggregatedData",aggregatedData); */
-
-    /*   const groupedData = _.groupBy(myData, 'year');
-    console.log('grouped', groupedData);
-    const emissionArray = selectedProduct.sales[0].components.map((c) => {
-      key: c.material;
-      c.emission * c.quantity * selectedProduct.sales[0].volume;
-    });
- */
     // Step 2: Transform the aggregated data for d3.stack()
-    console.log('entries', Object.entries(aggregatedData));
     const transformedData = Object.entries(aggregatedData).map(
       ([year, materials]) => ({
         year: +year, // Convert back to number
@@ -167,7 +168,6 @@ export class PlotEmissionsComponent implements OnInit {
       })
     );
 
-    // Assuming d3 is imported and set up correctly
     const series = d3
       .stack()
       .keys(d3.union(myData.map((d) => d.material))) // Extract unique materials
@@ -182,7 +182,7 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('x', width / 2)
       .attr('y', height + 15)
       .attr('text-anchor', 'middle')
-      .style('font-family', 'Helvetica')
+      .style('font-family', 'Segoe UI')
       .style('font-size', 12)
       .text('Year');
 
@@ -192,10 +192,20 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('text-anchor', 'middle')
       .attr('transform', 'translate(-30,' + height / 2.5 + ')rotate(-90)')
       .attr('y', -10)
-      .style('font-family', 'Helvetica')
+      .style('font-family', 'Segoe UI')
       .style('margin-right', '90')
       .style('font-size', 12)
       .text('Emissions');
+
+    svg
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', -20) // Adjust the vertical position of the title
+      .attr('text-anchor', 'middle')
+      .style('font-family', 'Segoe UI')
+      .style('font-size', 16) // You can adjust the font size as needed
+      .style('font-weight', 'bold')
+      .text('Emissions Over Time'); // Replace with your desired title
 
     svg
       .append('g')
@@ -214,27 +224,58 @@ export class PlotEmissionsComponent implements OnInit {
         return isFinite(y0 - y1) ? y0 - y1 : 0; // Provide 0 or another fallback value as needed
       })
       .attr('width', x.bandwidth());
-
+    this.createLegend(svg, materials, colorScale);
+   
 
     
-    // Balken hinzufügen
-    /*  svg
-      .selectAll()
-      .data(selectedProduct.sales)
+      svg
+      .append('text')
+      .attr('x', -30)
+      .attr('y', height + margin.bottom - 10) // Anpassung der Position relativ zum unteren Rand
+      .attr('text-anchor', 'start')
+      .attr('lengthAdjust', 'spacing')
+      .style('font-family', 'Segoe UI')
+      .style('font-size', 12)
+      .text(
+        'The emissions of your product are distributed among its materials. The materials include aluminum, steel, and other components.'
+      );
+  }
+
+  private createLegend(
+    svg: d3.Selection<any, unknown, null, undefined>,
+    materials: string[],
+    colorScale: d3.ScaleOrdinal<string, string>
+  ): void {
+    const legend = svg
+      .append('g')
+      .attr('transform', 'translate(' + 230 + ',5)')
+      .attr('width', 300);
+
+    const legendRectSize = 13;
+    const legendSpacing = 2;
+
+    const legendItems = legend
+      .selectAll('.legend-item')
+      .data(materials)
       .enter()
-      .append('rect')
-      .attr('class', 'bar')
-      .attr('x', (d) => x(d.year.toString()) || 0) // Handle undefined case
-      .attr('y', d => y(d.components[0].emission))
-      .attr('width', x.bandwidth())
+      .append('g')
+      .attr('class', 'legend-item')
       .attr(
-        'height',
-        (d) =>
-          height -
-          y(d.components[0].emission * d.components[0].quantity * d.volume)
-      )
-      .attr('fill', function (d) {
-        return colorScale(d.year.toString());
-      }); */
+        'transform',
+        (d, i) => 'translate(0,' + i * (legendRectSize + legendSpacing) + ')'
+      );
+
+    legendItems
+      .append('rect')
+      .attr('width', legendRectSize)
+      .attr('height', legendRectSize)
+      .style('fill', (d) => colorScale(d));
+
+    legendItems
+      .append('text')
+      .attr('x', legendRectSize + legendSpacing)
+      .attr('y', legendRectSize - legendSpacing)
+      .text((d) => d)
+      .style('font-family', 'Segoe UI');
   }
 }

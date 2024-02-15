@@ -6,10 +6,11 @@
   }
   
   .header-title {
-    color: blue;
+    color: #0095FF;
     font-size: 24px;
     margin: 0;
-    font-family: inherit;
+    font-family:   'Segoe UI'
+    ;
   }
   
   .header-slogan {
