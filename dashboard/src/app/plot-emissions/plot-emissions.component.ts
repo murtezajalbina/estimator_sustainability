@@ -1,10 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import _ from 'lodash';
-import {
-  DataServiceEmissions,
-  DataServiceColors,
-} from '../cart.service'; //service for injecting data
+import { DataServiceEmissions, DataServiceColors } from '../cart.service'; //service for injecting data
 
 @Component({
   selector: 'app-plot-emissions',
@@ -221,14 +218,35 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('height', (d) => {
         const y0 = y(d[0]);
         const y1 = y(d[1]);
-        return isFinite(y0 - y1) ? y0 - y1 : 0; // Provide 0 or another fallback value as needed
+        return isFinite(y0 - y1) ? y0 - y1 : 0;
       })
-      .attr('width', x.bandwidth());
-    this.createLegend(svg, materials, colorScale);
-   
+      .attr('width', x.bandwidth())
 
-    
-      svg
+      .on('mouseover',  (event, d) => {
+        // make all bars transparent
+        svg.selectAll('rect').style('opacity', 0.2);
+        
+        const hoveredData = d3.select((<any>this).parentNode)
+        console.log('hey', hoveredData)
+
+        // make the chosen bar visible
+      /*   d3.select(this).style('opacity', 1); */
+        console.log('hello', this['data'])
+       
+      })
+      .on('mouseout', function (event, d) {
+        // make all bars visible again
+        svg.selectAll('rect').style('opacity', 1);
+      
+        // make all legend items visible again
+        svg.selectAll('.legend-item').style('opacity', 1);
+      });
+      
+      
+    this.createLegend(svg, materials, colorScale);
+
+    //desciption below the plot
+    svg
       .append('text')
       .attr('x', -30)
       .attr('y', height + margin.bottom - 10) // Anpassung der Position relativ zum unteren Rand
@@ -241,6 +259,7 @@ export class PlotEmissionsComponent implements OnInit {
       );
   }
 
+  //legend for materials
   private createLegend(
     svg: d3.Selection<any, unknown, null, undefined>,
     materials: string[],

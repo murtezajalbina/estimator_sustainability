@@ -13,9 +13,9 @@ export class DataServiceEmissions {
       sales: [
         {
           year: 2020,
-          volume: 100,
+          volume: 200,
           components: [
-            { material: 'aluminium', quantity: 12, emission: 8 },
+            { material: 'aluminium', quantity: 3, emission: 3 },
             { material: 'steel', quantity: 4, emission: 5 },
             { material: 'other', quantity: 5, emission: 3 },
           ],
