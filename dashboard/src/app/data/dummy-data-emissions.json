@@ -2,7 +2,8 @@
   {
       "product": "Drive 1",
       "sales": [
-        { "year": 2020, "volume": 100, "components": [
+        { "year": 2020, "volume": 100, "components": 
+        [
           { "material": "aluminium", "quantity": 12, "emission": 8 },
           { "material": "steel", "quantity": 4, "emission": 5 },
           { "material": "other", "quantity": 5, "emission": 3 }
@@ -28,11 +29,6 @@
           { "material": "other", "quantity": 4, "emission": 2 }
         ] }
       ]
-    },
-        { "measure": "process efficancy", "reduction": 0.2 },
-        { "measure": "switch technology", "reduction": 0.15 },
-        { "measure": "reduce waste", "reduction": 0.1 },
-        { "measure": "green compounds", "reduction": 0.25 }
-
+    }
   ]
 

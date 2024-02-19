@@ -54,14 +54,30 @@ export class DataServiceEmissions {
         },
       ],
     },
-    { measure: 'process efficiency', reduction: 0.2 },
-    { measure: 'switch technology', reduction: 0.15 },
-    { measure: 'reduce waste', reduction: 0.1 },
-    { measure: 'green compounds', reduction: 0.25 },
   ];
 
   getData(): Observable<any[]> {
     return of(this.data);
+  }
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class DataServiceReduction {
+  private reduction = [
+    {
+      messure_reduction: [
+      { measure: 'process efficiency', reduction: 0.2 },
+      { measure: 'switch technology', reduction: 0.15 },
+      { measure: 'reduce waste', reduction: 0.1 },
+      { measure: 'green compounds', reduction: 0.25 },
+      ],
+    },
+  ];
+
+  getData(): Observable<any[]> {
+    return of(this.reduction);
   }
 }
 

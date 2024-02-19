@@ -1,0 +1,8 @@
+{
+    "reduction": [
+    { "measure": "process efficancy", "reduction": 0.2 },
+    { "measure": "switch technology", "reduction": 0.15 },
+    { "measure": "reduce waste", "reduction": 0.1 },
+    { "measure": "green compounds", "reduction": 0.25 }
+  ]
+}
