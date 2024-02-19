@@ -32,6 +32,8 @@ export class PlotEmissionsComponent implements OnInit {
     this.createBarChart();
   }
 
+  calculateMaxEmissionPerYear() {}
+
   private createBarChart(): void {
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
 
@@ -222,17 +224,21 @@ export class PlotEmissionsComponent implements OnInit {
       })
       .attr('width', x.bandwidth())
 
-      .on('mouseover',  (event, d) => {
+      .on('mouseover', function (event, d) {
         // make all bars transparent
         svg.selectAll('rect').style('opacity', 0.2);
-        
-        const hoveredData = d3.select((<any>this).parentNode)
-        console.log('hey', hoveredData)
-
+      
         // make the chosen bar visible
-      /*   d3.select(this).style('opacity', 1); */
-        console.log('hello', this['data'])
-       
+        d3.select(this).style('opacity', 1);
+
+
+        console.log(d3.select(this))
+      
+        // make the corresponding legend item visible
+        const material = d.data['material'];
+        svg.selectAll('.legend-item')
+          .filter((legendMaterial) => legendMaterial === material)
+          .style('opacity', 1);
       })
       .on('mouseout', function (event, d) {
         // make all bars visible again
@@ -241,8 +247,7 @@ export class PlotEmissionsComponent implements OnInit {
         // make all legend items visible again
         svg.selectAll('.legend-item').style('opacity', 1);
       });
-      
-      
+   
     this.createLegend(svg, materials, colorScale);
 
     //desciption below the plot
