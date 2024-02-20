@@ -2,6 +2,8 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import { DataServiceEmissions, DataServiceColors } from '../cart.service'; //service for injecting data
+import { DataProp } from '../dataProp';
+
 
 @Component({
   selector: 'app-plot-emissions',
@@ -38,7 +40,7 @@ export class PlotEmissionsComponent implements OnInit {
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
 
     //Type of Emissions Data
-    type DataProp = {
+ /*    type DataProp = {
       product: string;
       sales: YearSales[];
     };
@@ -53,20 +55,20 @@ export class PlotEmissionsComponent implements OnInit {
       year: number;
       volume: number;
       components: DataPoint[];
-    };
+    }; */
 
     const data: DataProp[] = this['data'];
 
     const selectedProduct = data[0]; // todo change this in future for product selection
 
-    const calcualteEmission = (component: DataPoint, volume: number) => {
+    const calcualteEmission = (component: any, volume: number) => {
       return component.emission * component.quantity * volume;
     };
 
-    const calculateMaxEmissionPerYear = (sale: YearSales): number => {
+    const calculateMaxEmissionPerYear = (sale: any): number => {
       const volume = sale.volume;
       const resultArray: number = sale.components.reduce(
-        (acc, s) => acc + s.emission * s.quantity * volume,
+        (acc: number, s: { emission: number; quantity: number; }) => acc + s.emission * s.quantity * volume,
         0
       );
       return resultArray;
@@ -80,7 +82,7 @@ export class PlotEmissionsComponent implements OnInit {
       return Math.max(...emissionArray);
     };
 
-    const margin = { top: 60, right: 90, bottom: 50, left: 80 };
+    const margin = { top: 60, right: 90, bottom: 60, left: 80 };
     const width = 400 - margin.left - margin.right;
     const height = 300 - margin.top - margin.bottom;
 
@@ -88,7 +90,7 @@ export class PlotEmissionsComponent implements OnInit {
       .select(this.chartContainer.nativeElement)
       .append('svg')
       .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
+      .attr('height', height + margin.top + margin.bottom + 20)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
@@ -174,6 +176,7 @@ export class PlotEmissionsComponent implements OnInit {
       // Use a fallback value of 0 for missing emissions
       transformedData as any
     ); // Cast to 'any' if necessary to match d3's expected input type
+    console.log(series);
 
     // X label
     svg
@@ -199,22 +202,26 @@ export class PlotEmissionsComponent implements OnInit {
     svg
       .append('text')
       .attr('x', width / 2)
-      .attr('y', -20) // Adjust the vertical position of the title
+      .attr('y', -20) 
       .attr('text-anchor', 'middle')
       .style('font-family', 'Segoe UI')
-      .style('font-size', 16) // You can adjust the font size as needed
+      .style('font-size', 16) 
       .style('font-weight', 'bold')
-      .text('Emissions Over Time'); // Replace with your desired title
+      .text('Emissions Over Time'); 
 
     svg
       .append('g')
       .selectAll('g')
       .data(series)
       .join('g')
-      .attr('fill', (d) => colorScale(d.key))
+      .attr('fill', (d1) => {
+        const material = d1.key;
+        return colorScale(material);
+      })
       .selectAll('rect')
       .data((D) => D)
       .join('rect')
+      .attr('material', (d) => d.data['material'])
       .attr('x', (d) => x(d.data['year'].toString())!)
       .attr('y', (d) => y(d[1]))
       .attr('height', (d) => {
@@ -223,45 +230,69 @@ export class PlotEmissionsComponent implements OnInit {
         return isFinite(y0 - y1) ? y0 - y1 : 0;
       })
       .attr('width', x.bandwidth())
-
       .on('mouseover', function (event, d) {
-        // make all bars transparent
         svg.selectAll('rect').style('opacity', 0.2);
-      
-        // make the chosen bar visible
-        d3.select(this).style('opacity', 1);
+        const material = (d3.select(this) as any).node().parentNode.__data__
+          .key;
+        d3.selectAll('rect').each(function (rectData) {
+          var isSameMaterial =
+            (d3.select(this) as any).node().parentNode.__data__.key ===
+            material;
 
+          if (isSameMaterial) {
+            d3.select(this).style('opacity', 1);
+          }
+        });
 
-        console.log(d3.select(this))
-      
-        // make the corresponding legend item visible
-        const material = d.data['material'];
-        svg.selectAll('.legend-item')
-          .filter((legendMaterial) => legendMaterial === material)
-          .style('opacity', 1);
+        d3
+          .selectAll('.legend-item')
+          .style('opacity', (legendMaterial) =>
+            legendMaterial === material ? 1 : 0.2
+          );
+
+        svg.selectAll('.legend-item rect').style('opacity', (legendMaterial) =>
+        legendMaterial === material ? 1 : 0.2
+        )
+
+        console.log('Material:', material);
       })
+
       .on('mouseout', function (event, d) {
         // make all bars visible again
         svg.selectAll('rect').style('opacity', 1);
-      
         // make all legend items visible again
-        svg.selectAll('.legend-item').style('opacity', 1);
+
+        d3.selectAll('.legend-item').style('opacity', 1);
       });
-   
+
     this.createLegend(svg, materials, colorScale);
 
     //desciption below the plot
     svg
       .append('text')
       .attr('x', -30)
-      .attr('y', height + margin.bottom - 10) // Anpassung der Position relativ zum unteren Rand
+      .attr('y', height + margin.bottom - 10) 
       .attr('text-anchor', 'start')
       .attr('lengthAdjust', 'spacing')
       .style('font-family', 'Segoe UI')
       .style('font-size', 12)
       .text(
-        'The emissions of your product are distributed among its materials. The materials include aluminum, steel, and other components.'
+        'The emissions of your product are distributed among its materials. '
       );
+
+      svg
+      .append('text')
+      .attr('x', -30)
+      .attr('y', height + margin.bottom ) 
+      .attr('text-anchor', 'start')
+      .attr('lengthAdjust', 'spacing')
+      .style('font-family', 'Segoe UI')
+      .style('font-size', 12)
+      .text(
+        ' The materials include aluminum, steel, and other components.'
+      );
+
+      
   }
 
   //legend for materials
@@ -284,15 +315,18 @@ export class PlotEmissionsComponent implements OnInit {
       .enter()
       .append('g')
       .attr('class', 'legend-item')
+      .attr('material', (d) => d) 
       .attr(
         'transform',
         (d, i) => 'translate(0,' + i * (legendRectSize + legendSpacing) + ')'
       );
+      
 
     legendItems
       .append('rect')
       .attr('width', legendRectSize)
       .attr('height', legendRectSize)
+      .attr('material', (d) => d) 
       .style('fill', (d) => colorScale(d));
 
     legendItems
@@ -301,5 +335,8 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('y', legendRectSize - legendSpacing)
       .text((d) => d)
       .style('font-family', 'Segoe UI');
+
+      
   }
+
 }

@@ -7,7 +7,7 @@
   height: 330px; 
   background-color: white;
   border-radius: 2%; /*round design*/
-  overflow: hidden; 
+  overflow: visible; 
   position: relative;
   margin-left: 35px;
 }

@@ -2,12 +2,13 @@
 
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { DataProp } from './dataProp';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataServiceEmissions {
-  private data = [
+  private data: DataProp[] = [
     {
       product: 'Drive 1',
       sales: [
