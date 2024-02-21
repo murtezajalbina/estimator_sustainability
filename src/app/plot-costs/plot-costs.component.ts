@@ -222,7 +222,7 @@ export class PlotCostsComponent implements OnInit {
       .style('font-family', 'Segoe UI')
       .style('font-size', 16)
       .style('font-weight', 'bold')
-      .text('Total Cost Of ' + data[0].productName);
+      .text('Total cost of ' + data[0].productName);
 
 const legendRectSize = 13;
   svg.append("rect").attr("x",200).attr("y",30).attr('width', legendRectSize)
