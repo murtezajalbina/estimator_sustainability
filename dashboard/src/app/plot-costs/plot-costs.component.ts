@@ -1,14 +1,13 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { DataServiceColors, DataServiceCosts, DataServiceEmissions } from '../cart.service';
-import { HttpClient } from '@angular/common/http';
-import { forEach } from 'lodash';
+import { select } from 'd3';
 
 @Component({
   selector: 'app-plot-costs',
   standalone: true,
   templateUrl: './plot-costs.component.html',
-  styleUrls: ['./plot-costs.component.css']
+  styleUrls: ['../app.component.css']
 })
 
 export class PlotCostsComponent implements OnInit {
@@ -16,10 +15,6 @@ export class PlotCostsComponent implements OnInit {
   [x: string]: any;
 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
-  private margin = { top: 20, right: 20, bottom: 30, left: 50 };
-  private svg: any;
-  private xScale: any;
-  private yScale: any;
 
   constructor(
     private dataService: DataServiceEmissions,
@@ -82,13 +77,14 @@ export class PlotCostsComponent implements OnInit {
     return resultArray;
   }
 
-  createChart(data: any) {
+  createChart(data: any, additionalCost?: any) {
 
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
 
     const margin = { top: 60, right: 90, bottom: 50, left: 80 };
-    const width = 400 - margin.left - margin.right;
+    const width = 450 - margin.left - margin.right;
     const height = 300 - margin.top - margin.bottom;
+
 
     const svg = d3
       .select(this.chartContainer.nativeElement)
@@ -99,13 +95,13 @@ export class PlotCostsComponent implements OnInit {
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     const x = d3
-      .scaleBand()
+      .scalePoint()
       .domain(data.map((s: any) => s.salesYear))
       .range([0, width])
-      .padding(0.1);
+      .padding(0.5)
 
     const y = d3.scaleLinear()
-      .domain([5000, 40000])
+      .domain([20000, 40000])
       .range([height, 0]);
 
     svg
@@ -116,24 +112,35 @@ export class PlotCostsComponent implements OnInit {
     svg.append('g').call(d3.axisLeft(y));
 
     const dataPoints = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost }));
+    console.log('datapoints ',dataPoints)
 
     svg.append('g')
       .selectAll("dot")
       .data(dataPoints)
       .enter()
       .append("circle")
-      .attr("r", 2)
+      .attr("r", 3)
       .attr("cx", (d: any) => x(d.x) || 0)  // Use x scale to position
       .attr("cy", (d: any) => y(d.y) || 0)  // Use y scale to position
-      .style("fill", "#CC0000");
-
-    dataPoints.forEach((d: { x: number; y: number; }) => {
-      d.x = +d.x;
-      d.y = +d.y;
-    });
+      .style("fill", this['colorPalette'][1])
+      .on("mouseover", (event: any, d: any) => {
+        tooltip.transition().duration(200).style("opacity", .9);
+        tooltip.html(`Total Cost Material: ${d.y} , year: ${d.x}`)
+          .style("left", (event.pageX) + "px")
+          .style("top", (event.pageY ) + "px");
+      })
+      .on("mouseout", (d: any) => {
+        tooltip.transition().duration(500).style("opacity", 0);
+      });
 
     const xScale = d3.scaleLinear().domain(data.map((s: any) => s.salesYear)).range([0, width]);
-    const yScale = d3.scaleLinear().domain([5000, 40000]).range([height, 0]);
+    const yScale = d3.scaleLinear().domain([20000, 40000]).range([height, 0]);
+
+
+    const tooltip = d3.select(this.chartContainer.nativeElement)
+  .append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
 
     const line = d3.line()
       .x((d: any) => xScale(d.x) || 0)  // Use x scale to position
@@ -144,9 +151,48 @@ export class PlotCostsComponent implements OnInit {
       .datum(dataPoints)
       .attr("class", "line")
       .style("fill", "none")
-      .style("stroke", "blue")
+      .style("stroke", this['colorPalette'][0])
       .style("stroke-width", "2")
       .attr("d", line);
+
+      if(additionalCost !== undefined){
+
+      const dataPointsTotal = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost + additionalCost }));
+
+        const line2 = d3.line()
+      .x((d: any) => xScale(d.x) || 0)  // Use x scale to position
+      .y((d: any) => yScale(d.y) || 0)  // Use y scale to position
+      .curve(d3.curveBasis);
+
+    svg.append("path")
+      .datum(dataPointsTotal)
+      .attr("class", "line")
+      .style("fill", "none")
+      .style("stroke", this['colorPalette'][3])
+      .style("stroke-width", "2")
+      .attr("d", line2);
+
+      svg.append('g')
+      .selectAll("dot")
+      .data(dataPointsTotal)
+      .enter()
+      .append("circle")
+      .attr("r", 3)
+      .attr("cx", (d: any) => x(d.x) || 0)  // Use x scale to position
+      .attr("cy", (d: any) => y(d.y) || 0)  // Use y scale to position
+      .style("fill", this['colorPalette'][2])
+      .on("mouseover", (event: any, d: any) => {
+        tooltip.transition().duration(200).style("opacity", .9);
+        tooltip.html(`Total Cost Material: ${d.y} , year: ${d.x}`)
+          .style("left", (event.pageX) + "px")
+          .style("top", (event.pageY ) + "px");
+      })
+      .on("mouseout", (d: any) => {
+        tooltip.transition().duration(500).style("opacity", 0);
+      });
+
+      }
+      
 
     svg
       .append('text')
@@ -174,7 +220,17 @@ export class PlotCostsComponent implements OnInit {
       .style('font-size', 16)
       .style('font-weight', 'bold')
       .text('Total cost of ' + data[0].productName);
+
+const legendRectSize = 13;
+  svg.append("rect").attr("x",200).attr("y",30).attr('width', legendRectSize)
+    .attr('height', legendRectSize).style("fill", this['colorPalette'][0])
+  svg.append("rect").attr("x",200).attr("y",50).attr('width', legendRectSize)
+    .attr('height', legendRectSize).style("fill", this['colorPalette'][3])
+  svg.append("text").attr("x", 215).attr("y", 40).text("totalcost").style("font-size", "12px").style('font-family', 'Segoe UI')
+  svg.append("text").attr("x", 215).attr("y", 60).text("totalcost with meassure").style("font-size", "12px").style('font-family', 'Segoe UI')
+      
   }
+
 
   private createLinePlot() {
     const data = this['data'];
@@ -183,6 +239,11 @@ export class PlotCostsComponent implements OnInit {
     const totalMaterialCost = this.calculateAllMaterialCost(data, cost[0].Kosten_pro_Material);
     const selectedData = totalMaterialCost.filter(item => item.productName === 'Drive 1');
     this.createChart(selectedData);
+
+    const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme);
+    this.createChart(selectedData, emmsionCost);
+
+
   }
 }
 
