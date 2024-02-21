@@ -16,6 +16,33 @@
   }
   
 
+  .white_box {
+    width: 450px; 
+    height: 330px; 
+    background-color: white;
+    border-radius: 2%; /*round design*/
+    overflow: hidden; 
+    position: relative;
+    margin-left: 20px;
+  }
+
+  .chart-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  
+
+
+  .plot-container{
+    display: flex; 
+    flex-direction: row;
+    margin-left: 1rem;
+    gap: 2rem;
+  }
+
   .info-icon:hover::after {
     content: "More information";
     position: absolute;

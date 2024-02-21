@@ -10,7 +10,7 @@ import { DataProp } from '../dataProp';
   standalone: true,
   imports: [],
   templateUrl: './plot-emissions.component.html',
-  styleUrl: './plot-emissions.component.css',
+  styleUrls: ['../app.component.css']
 })
 export class PlotEmissionsComponent implements OnInit {
   [x: string]: any;
