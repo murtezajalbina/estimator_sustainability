@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import _ from 'lodash';
+/* import _ from 'lodash'; */
 import { DataServiceEmissions, DataServiceColors } from '../cart.service'; //service for injecting data
 import { DataProp } from '../dataProp';
 
