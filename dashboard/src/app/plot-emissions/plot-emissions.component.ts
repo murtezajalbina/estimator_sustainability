@@ -4,7 +4,6 @@ import * as d3 from 'd3';
 import { DataServiceEmissions, DataServiceColors } from '../cart.service'; //service for injecting data
 import { DataProp } from '../dataProp';
 
-
 @Component({
   selector: 'app-plot-emissions',
   standalone: true,
@@ -39,24 +38,6 @@ export class PlotEmissionsComponent implements OnInit {
   private createBarChart(): void {
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
 
-    //Type of Emissions Data
- /*    type DataProp = {
-      product: string;
-      sales: YearSales[];
-    };
-
-    type DataPoint = {
-      material: string;
-      quantity: number;
-      emission: number;
-    };
-
-    type YearSales = {
-      year: number;
-      volume: number;
-      components: DataPoint[];
-    }; */
-
     const data: DataProp[] = this['data'];
 
     const selectedProduct = data[0]; // todo change this in future for product selection
@@ -68,7 +49,8 @@ export class PlotEmissionsComponent implements OnInit {
     const calculateMaxEmissionPerYear = (sale: any): number => {
       const volume = sale.volume;
       const resultArray: number = sale.components.reduce(
-        (acc: number, s: { emission: number; quantity: number; }) => acc + s.emission * s.quantity * volume,
+        (acc: number, s: { emission: number; quantity: number }) =>
+          acc + s.emission * s.quantity * volume,
         0
       );
       return resultArray;
@@ -176,7 +158,6 @@ export class PlotEmissionsComponent implements OnInit {
       // Use a fallback value of 0 for missing emissions
       transformedData as any
     ); // Cast to 'any' if necessary to match d3's expected input type
-    console.log(series);
 
     // X label
     svg
@@ -186,6 +167,7 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('text-anchor', 'middle')
       .style('font-family', 'Segoe UI')
       .style('font-size', 12)
+      .style('font-weight', 'bold')
       .text('Year');
 
     // Y label
@@ -197,31 +179,39 @@ export class PlotEmissionsComponent implements OnInit {
       .style('font-family', 'Segoe UI')
       .style('margin-right', '90')
       .style('font-size', 12)
+      .style('font-weight', 'bold')
       .text('Emissions');
 
     svg
       .append('text')
       .attr('x', width / 2)
-      .attr('y', -20) 
+      .attr('y', -20)
       .attr('text-anchor', 'middle')
       .style('font-family', 'Segoe UI')
-      .style('font-size', 16) 
+      .style('font-size', 16)
       .style('font-weight', 'bold')
-      .text('Emissions Over Time'); 
+      .text('Emissions Over Time');
+    this.createLegend(svg, materials, colorScale);
 
+    svg.append('g').selectAll('g').data(series).join('g');
+    console.log(series); // Überprüfen Sie die Struktur von series
     svg
       .append('g')
       .selectAll('g')
       .data(series)
       .join('g')
       .attr('fill', (d1) => {
+        console.log(d1); // Überprüfen Sie die Struktur von d1
         const material = d1.key;
         return colorScale(material);
       })
+
       .selectAll('rect')
       .data((D) => D)
       .join('rect')
       .attr('material', (d) => d.data['material'])
+      .attr('class', 'my-rect') // Fügen Sie die Klasse 'my-rect' hinzu
+
       .attr('x', (d) => x(d.data['year'].toString())!)
       .attr('y', (d) => y(d[1]))
       .attr('height', (d) => {
@@ -231,32 +221,34 @@ export class PlotEmissionsComponent implements OnInit {
       })
       .attr('width', x.bandwidth())
       .on('mouseover', function (event, d) {
-        svg.selectAll('rect').style('opacity', 0.2);
+        svg.selectAll('.my-rect').style('opacity', 0.2);
         const material = (d3.select(this) as any).node().parentNode.__data__
           .key;
-        d3.selectAll('rect').each(function (rectData) {
+        console.log(material);
+        
+        d3.selectAll('.my-rect').each(function (rectData) {
           var isSameMaterial =
             (d3.select(this) as any).node().parentNode.__data__.key ===
             material;
+          console.log(isSameMaterial);
 
           if (isSameMaterial) {
             d3.select(this).style('opacity', 1);
           }
+      
         });
+      
 
-        d3
-          .selectAll('.legend-item')
+        d3.selectAll('.legend-item').style('opacity', (legendMaterial) =>
+          legendMaterial === material ? 1 : 0.22
+        );
+
+        svg
+          .selectAll('.legend-item rect')
           .style('opacity', (legendMaterial) =>
             legendMaterial === material ? 1 : 0.2
           );
-
-        svg.selectAll('.legend-item rect').style('opacity', (legendMaterial) =>
-        legendMaterial === material ? 1 : 0.2
-        )
-
-        console.log('Material:', material);
       })
-
       .on('mouseout', function (event, d) {
         // make all bars visible again
         svg.selectAll('rect').style('opacity', 1);
@@ -265,13 +257,11 @@ export class PlotEmissionsComponent implements OnInit {
         d3.selectAll('.legend-item').style('opacity', 1);
       });
 
-    this.createLegend(svg, materials, colorScale);
-
     //desciption below the plot
     svg
       .append('text')
       .attr('x', -30)
-      .attr('y', height + margin.bottom - 10) 
+      .attr('y', height + margin.bottom - 10)
       .attr('text-anchor', 'start')
       .attr('lengthAdjust', 'spacing')
       .style('font-family', 'Segoe UI')
@@ -280,19 +270,15 @@ export class PlotEmissionsComponent implements OnInit {
         'The emissions of your product are distributed among its materials. '
       );
 
-      svg
+    svg
       .append('text')
       .attr('x', -30)
-      .attr('y', height + margin.bottom ) 
+      .attr('y', height + margin.bottom)
       .attr('text-anchor', 'start')
       .attr('lengthAdjust', 'spacing')
       .style('font-family', 'Segoe UI')
       .style('font-size', 12)
-      .text(
-        ' The materials include aluminum, steel, and other components.'
-      );
-
-      
+      .text(' The materials include aluminum, steel, and other components.');
   }
 
   //legend for materials
@@ -315,18 +301,17 @@ export class PlotEmissionsComponent implements OnInit {
       .enter()
       .append('g')
       .attr('class', 'legend-item')
-      .attr('material', (d) => d) 
+      .attr('material', (d) => d)
       .attr(
         'transform',
         (d, i) => 'translate(0,' + i * (legendRectSize + legendSpacing) + ')'
       );
-      
 
     legendItems
       .append('rect')
       .attr('width', legendRectSize)
       .attr('height', legendRectSize)
-      .attr('material', (d) => d) 
+      .attr('material', (d) => d)
       .style('fill', (d) => colorScale(d));
 
     legendItems
@@ -335,8 +320,5 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('y', legendRectSize - legendSpacing)
       .text((d) => d)
       .style('font-family', 'Segoe UI');
-
-      
   }
-
 }
