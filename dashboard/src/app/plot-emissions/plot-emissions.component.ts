@@ -319,6 +319,8 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('x', legendRectSize + legendSpacing)
       .attr('y', legendRectSize - legendSpacing)
       .text((d) => d)
-      .style('font-family', 'Segoe UI');
+      .style('font-family', 'Segoe UI')
+      .style('font-size', '13px'); 
+
   }
 }

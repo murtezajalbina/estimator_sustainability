@@ -107,7 +107,6 @@ export class PlotROIComponent implements OnInit {
         
          data.forEach((d) => {
           if (d.cost > d.revenue) {
-            // Füge das Rechteck für Kosten zuerst hinzu
             svg
               .append('rect')
               .attr('class', 'cost')
@@ -117,7 +116,6 @@ export class PlotROIComponent implements OnInit {
               .attr('height', height - yScale(d.cost))
               .attr('fill', this.colorPalette[4]);
             
-            // Füge das Rechteck für Einnahmen hinzu
             svg
               .append('rect')
               .attr('class', 'revenue')
@@ -127,7 +125,6 @@ export class PlotROIComponent implements OnInit {
               .attr('height', height - yScale(d.revenue))
               .attr('fill', this.colorPalette[2]);
           } else {
-            // Füge das Rechteck für Einnahmen zuerst hinzu
             svg
               .append('rect')
               .attr('class', 'revenue')
@@ -137,7 +134,6 @@ export class PlotROIComponent implements OnInit {
               .attr('height', height - yScale(d.revenue))
               .attr('fill', this.colorPalette[2]);
         
-            // Füge das Rechteck für Kosten hinzu
             svg
               .append('rect')
               .attr('class', 'cost')
@@ -146,6 +142,16 @@ export class PlotROIComponent implements OnInit {
               .attr('width', xScale.bandwidth())
               .attr('height', height - yScale(d.cost))
               .attr('fill', this.colorPalette[4]);
+
+              svg
+              .append('text')
+              .attr('x', width / 2)
+              .attr('y', -20)
+              .attr('text-anchor', 'middle')
+              .style('font-family', 'Segoe UI')
+              .style('font-size', 16)
+              .style('font-weight', 'bold')
+              .text('Revenues Over Time');
           }
         });
         
