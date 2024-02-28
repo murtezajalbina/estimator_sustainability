@@ -5,6 +5,8 @@ import { HeaderComponent } from './header/header.component';
 import { PlotEmissionsComponent } from './plot-emissions/plot-emissions.component.js';
 import { PlotCostsComponent } from './plot-costs/plot-costs.component';
 import { HttpClientModule } from '@angular/common/http';
+import { PlotROIComponent } from './plot-roi/plot-roi.component';
+import { ProductChoiceComponent } from './product-choice/product-choice.component';
 
 
 
@@ -19,6 +21,8 @@ import { HttpClientModule } from '@angular/common/http';
     HeaderComponent, 
     PlotEmissionsComponent,
     PlotCostsComponent,
+    ProductChoiceComponent,
+    PlotROIComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'

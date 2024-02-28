@@ -60,9 +60,9 @@ export class PlotCostsComponent implements OnInit {
         sales.components.forEach((components: any) => {
           let materialCost;
 
-          if (components.material === "aluminium") {
+          if (components.material === "Aluminium") {
             materialCost = components.quantity * sales.volume * cost.Aluminium;
-          } else if (components.material === "steel") {
+          } else if (components.material === "Steel") {
             materialCost = components.quantity * sales.volume * cost.Steel;
           } else {
             materialCost = components.quantity * sales.volume * cost.Other;
@@ -197,18 +197,21 @@ export class PlotCostsComponent implements OnInit {
     svg
       .append('text')
       .attr('x', width / 2)
-      .attr('y', height + 15)
+      .attr('y', height + 25)
+      .attr('fill', '#000')
+      .attr('font-weight', 'bold')
       .attr('text-anchor', 'middle')
       .style('font-size', 12)
       .text('Year');
 
     svg
       .append('text')
-      .attr('text-anchor', 'middle')
       .attr('transform', 'translate(-30,' + height / 2.5 + ')rotate(-90)')
-      .attr('y', -15)
-      .style('margin-right', '90')
-      .style('font-size', 12)
+      .attr('y', -20)
+      .attr('fill', '#000')
+         .attr('font-weight', 'bold')
+         .style('font-size', 12)
+         .attr('text-anchor', 'middle')
       .text('Cost');
 
     svg
@@ -219,7 +222,7 @@ export class PlotCostsComponent implements OnInit {
       .style('font-family', 'Segoe UI')
       .style('font-size', 16)
       .style('font-weight', 'bold')
-      .text('Total cost of ' + data[0].productName);
+      .text('Total Cost Of ' + data[0].productName);
 
 const legendRectSize = 13;
   svg.append("rect").attr("x",200).attr("y",30).attr('width', legendRectSize)
