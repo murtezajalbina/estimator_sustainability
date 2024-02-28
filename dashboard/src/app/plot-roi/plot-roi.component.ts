@@ -8,7 +8,7 @@ import { DataServiceEmissions, DataServiceColors } from '../cart.service'; //ser
   standalone: true,
   imports: [],
   templateUrl: './plot-roi.component.html',
-  styleUrl: './plot-roi.component.css',
+  styleUrls: ['../app.component.css']
 })
 
 export class PlotROIComponent implements OnInit {

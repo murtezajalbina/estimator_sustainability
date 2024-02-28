@@ -6,6 +6,7 @@ import { PlotEmissionsComponent } from './plot-emissions/plot-emissions.componen
 import { PlotCostsComponent } from './plot-costs/plot-costs.component';
 import { HttpClientModule } from '@angular/common/http';
 import { PlotROIComponent } from './plot-roi/plot-roi.component';
+import { ProductChoiceComponent } from './product-choice/product-choice.component';
 
 
 
@@ -20,6 +21,7 @@ import { PlotROIComponent } from './plot-roi/plot-roi.component';
     HeaderComponent, 
     PlotEmissionsComponent,
     PlotCostsComponent,
+    ProductChoiceComponent,
     PlotROIComponent,
   ],
   templateUrl: './app.component.html',
