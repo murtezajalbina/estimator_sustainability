@@ -22,7 +22,7 @@ import { PlotROIComponent } from './plot-roi/plot-roi.component';
     PlotCostsComponent,
     PlotROIComponent,
   ],
-  templateUrl: './app.component.html',
+  templateUrl: './index.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
