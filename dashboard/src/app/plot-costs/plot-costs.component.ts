@@ -112,7 +112,6 @@ export class PlotCostsComponent implements OnInit {
     svg.append('g').call(d3.axisLeft(y));
 
     const dataPoints = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost }));
-    console.log('datapoints ',dataPoints)
 
     svg.append('g')
       .selectAll("dot")
