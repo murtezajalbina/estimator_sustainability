@@ -194,14 +194,12 @@ export class PlotEmissionsComponent implements OnInit {
     this.createLegend(svg, materials, colorScale);
 
     svg.append('g').selectAll('g').data(series).join('g');
-    console.log(series); // Überprüfen Sie die Struktur von series
     svg
       .append('g')
       .selectAll('g')
       .data(series)
       .join('g')
       .attr('fill', (d1) => {
-        console.log(d1); // Überprüfen Sie die Struktur von d1
         const material = d1.key;
         return colorScale(material);
       })
@@ -224,13 +222,11 @@ export class PlotEmissionsComponent implements OnInit {
         svg.selectAll('.my-rect').style('opacity', 0.2);
         const material = (d3.select(this) as any).node().parentNode.__data__
           .key;
-        console.log(material);
         
         d3.selectAll('.my-rect').each(function (rectData) {
           var isSameMaterial =
             (d3.select(this) as any).node().parentNode.__data__.key ===
             material;
-          console.log(isSameMaterial);
 
           if (isSameMaterial) {
             d3.select(this).style('opacity', 1);

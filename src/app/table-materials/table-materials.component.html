@@ -1,1 +1,22 @@
-<p>table-materials works!</p>
+<!-- app.component.html -->
+
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th *ngFor="let header of headers">{{ header }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of rows">
+      <td>{{ row.name }}</td>
+      <td *ngFor="let col of headers">
+        <button (click)="toggleButton(row.name, col)">
+          {{ getToggleButtonValue(row.name, col) ? 'ON' : 'OFF' }}
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+

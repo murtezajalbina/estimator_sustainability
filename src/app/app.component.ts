@@ -7,7 +7,10 @@ import { PlotCostsComponent } from './plot-costs/plot-costs.component';
 import { HttpClientModule } from '@angular/common/http';
 import { PlotROIComponent } from './plot-roi/plot-roi.component';
 import { ProductChoiceComponent } from './product-choice/product-choice.component';
-
+import { TableMaterialsComponent } from './table-materials/table-materials.component';
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+ 
 
 
 
@@ -23,10 +26,13 @@ import { ProductChoiceComponent } from './product-choice/product-choice.componen
     PlotCostsComponent,
     ProductChoiceComponent,
     PlotROIComponent,
+    TableMaterialsComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
+
+
 export class AppComponent {
   title = 'dashboard';
 }

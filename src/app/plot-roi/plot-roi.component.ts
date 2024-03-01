@@ -73,12 +73,12 @@ export class PlotROIComponent implements OnInit {
 
        const yScale = d3
        .scaleLinear()
-       .domain([smallestNetProfit, maxRevenue!])
+       .domain([0, maxRevenue!])
        .range([height, 0]);
     
        svg
          .append('g')
-         .attr('transform', `translate(0, ${height})`)
+         .attr('transform', `translate(0, ${yScale(0)})`)
          .call(d3.axisBottom(xScale))
          .append('text')
          .attr('x', width /2 )
@@ -129,7 +129,7 @@ export class PlotROIComponent implements OnInit {
               .append('rect')
               .attr('class', 'revenue')
               .attr('x', xScale(String(d.year))!)
-              .attr('y', yScale(d.revenue))
+              .attr('y',  yScale(Math.max(0, d.revenue)))
               .attr('width', xScale.bandwidth())
               .attr('height', height - yScale(d.revenue))
               .attr('fill', this.colorPalette[2]);
