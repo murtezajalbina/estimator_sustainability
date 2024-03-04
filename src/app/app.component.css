@@ -36,7 +36,7 @@
 
   .white_box_table {
     width: auto;
-    height: 330px; 
+    height: auto; 
     background-color: white;
     border-radius: 2%; /*round design*/
     overflow: hidden; 

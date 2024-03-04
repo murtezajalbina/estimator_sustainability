@@ -1,18 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
+
+declare var $: any;
 
 @Component({
   selector: 'app-table-materials',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './table-materials.component.html',
-  styleUrl: './table-materials.component.css'
+  styleUrls: ['./table-materials.component.css']
 })
-export class TableMaterialsComponent {
-  headers = ['Reduce Waist', 'Process Efficiency', 'Reduce Waste', 'Green Compounds'];
+export class TableMaterialsComponent implements AfterViewInit {
+  headers = ['Reduce Waste', 'Process Efficiency', 'Switch technology', 'Green Compounds'];
   rows = [
     { name: 'Aluminum', toggles: [false, false, false, false] },
-    { name: 'Stahl', toggles: [false, false, false, false] },
+    { name: 'Steel', toggles: [false, false, false, false] },
     { name: 'Other', toggles: [false, false, false, false] }
   ];
 
@@ -26,5 +28,10 @@ export class TableMaterialsComponent {
     const rowIndex = this.rows.findIndex(row => row.name === rowName);
     const colIndex = this.headers.findIndex(header => header === colName);
     return this.rows[rowIndex].toggles[colIndex];
+  }
+
+  ngAfterViewInit() {
+    // Aktiviere die Bootstrap Toggle-Funktion nachdem die Ansicht initialisiert wurde
+    $('[data-toggle="toggle"]').bootstrapToggle();
   }
 }

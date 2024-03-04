@@ -1,6 +1,4 @@
 <!-- app.component.html -->
-
-
 <table>
   <thead>
     <tr>
@@ -10,13 +8,17 @@
   </thead>
   <tbody>
     <tr *ngFor="let row of rows">
+
+
       <td>{{ row.name }}</td>
       <td *ngFor="let col of headers">
-        <button (click)="toggleButton(row.name, col)">
-          {{ getToggleButtonValue(row.name, col) ? 'ON' : 'OFF' }}
-        </button>
+        <div class="form-check form-switch d-flex justify-content-center align-items-center">
+          <input class="form-check-input" type="checkbox" 
+                 [checked]="getToggleButtonValue(row.name, col)"
+                 (change)="toggleButton(row.name, col)"
+                 id="{{ row.name + col }}">
+        </div>
       </td>
     </tr>
   </tbody>
 </table>
-
