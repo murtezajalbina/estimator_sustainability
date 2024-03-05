@@ -40,6 +40,10 @@ selectedItem: string = "default";
     this.dataCost.getData().subscribe((cost) => {
       this['costs'] = cost;
     });
+    this.selectedItemService.selectedItem$.subscribe(selectedItem => {
+      console.log("Selected Item in ComponentTwo: ", selectedItem);
+      this.selectedItem = selectedItem;
+    });
 
     /* this.selectedItemService.selectedItem$.subscribe(selectedItem => {
         this.selectedItem = selectedItem;
