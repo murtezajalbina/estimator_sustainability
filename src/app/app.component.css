@@ -31,6 +31,8 @@
     border-radius: 2%; /*round design*/
     overflow: hidden; 
     position: relative;
+    margin-left: 20px;
+    margin-top: 2rem;
   }
 
   .white_box_table {
@@ -40,8 +42,8 @@
     border-radius: 2%; /*round design*/
     overflow: hidden; 
     position: relative;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 2rem;
+    margin-right: 2rem;
     
   }
 

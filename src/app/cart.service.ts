@@ -1,7 +1,7 @@
 // data.service.ts
 
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { DataProp } from './dataProp';
 
 @Injectable({
@@ -187,6 +187,23 @@ export class DataServiceReduction {
 
   getData(): Observable<any[]> {
     return of(this.reduction);
+  }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SelectedItemService {
+  private selectedItemSubject = new BehaviorSubject<string>("Drive 1  ");
+  selectedItem$ = this.selectedItemSubject.asObservable();
+
+  updateSelectedItem(selectedItem: string) {
+    this.selectedItemSubject.next(selectedItem);
+  }
+
+  getSelectedItem(): string {
+    console.log(this.selectedItemSubject.value)
+    return this.selectedItemSubject.value;
   }
 }
 
