@@ -3,14 +3,18 @@
   <thead>
     <tr>
       <th></th>
-      <th *ngFor="let header of headers">{{ header }}</th>
+      <th *ngFor="let header of headers">
+        <i class="bi bi-recycle" style="color: green"></i>
+        {{ header }}</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let row of rows">
-
-
-      <td>{{ row.name }}</td>
+      <td>
+        <i [class]="row.iconname" [style.color]="row.color"></i> 
+        {{ row.name }}
+      </td>
+      
       <td *ngFor="let col of headers">
         <div class="form-check form-switch d-flex justify-content-center align-items-center">
           <input class="form-check-input" type="checkbox" 

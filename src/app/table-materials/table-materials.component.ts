@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
 
+
+
 declare var $: any;
 
 @Component({
@@ -13,9 +15,9 @@ declare var $: any;
 export class TableMaterialsComponent implements AfterViewInit {
   headers = ['Reduce Waste', 'Process Efficiency', 'Switch technology', 'Green Compounds'];
   rows = [
-    { name: 'Aluminum', toggles: [false, false, false, false] },
-    { name: 'Steel', toggles: [false, false, false, false] },
-    { name: 'Other', toggles: [false, false, false, false] }
+    { name: 'Aluminum', toggles: [false, false, false, false], iconname: "bi bi-layers", color: "silver"},
+    { name: 'Steel', toggles: [false, false, false, false], iconname: "bi bi-record2-fill", color: "purple" },
+    { name: 'Other', toggles: [false, false, false, false], iconname: "bi bi-archive", color: "red" }
   ];
 
   toggleButton(rowName: string, colName: string) {
@@ -32,6 +34,7 @@ export class TableMaterialsComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     // Aktiviere die Bootstrap Toggle-Funktion nachdem die Ansicht initialisiert wurde
-    $('[data-toggle="toggle"]').bootstrapToggle();
+    return;
+    /* $('[data-toggle="toggle"]').bootstrapToggle(); */
   }
 }
