@@ -194,7 +194,7 @@ export class DataServiceReduction {
   providedIn: 'root'
 })
 export class SelectedItemService {
-  private selectedItemSubject = new BehaviorSubject<string>("Drive 1  ");
+  private selectedItemSubject = new BehaviorSubject<string>("Drive 1");
   selectedItem$ = this.selectedItemSubject.asObservable();
 
   updateSelectedItem(selectedItem: string) {

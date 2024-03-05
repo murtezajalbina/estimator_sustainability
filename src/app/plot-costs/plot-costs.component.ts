@@ -14,6 +14,7 @@ export class PlotCostsComponent implements OnInit {
 
   [x: string]: any;
   selectedItem: string = "default"; 
+  private totalMaterialCost: any
 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
 
@@ -21,9 +22,10 @@ export class PlotCostsComponent implements OnInit {
     private dataService: DataServiceEmissions,
     private dataColors: DataServiceColors,
     private dataCost: DataServiceCosts,
-    private selectedItemService: SelectedItemService
-  ) { }
+    private selectedItemService: SelectedItemService,
 
+  ) { }
+   
   ngOnInit(): void {
     this.dataService.getData().subscribe((data) => {
       this['data'] = data;
@@ -37,11 +39,9 @@ export class PlotCostsComponent implements OnInit {
       this['costs'] = cost;
     });
     this.selectedItemService.selectedItem$.subscribe(selectedItem => {
-      console.log("Selected Item in ComponentTwo: ", selectedItem);
       this.selectedItem = selectedItem;
+      this.createLinePlot();
     });
-
-    this.createLinePlot();
   }
 
   private calculateEmmisionCost(cost_per_messure: any) {
@@ -106,6 +106,8 @@ export class PlotCostsComponent implements OnInit {
       .range([0, width])
       .padding(0.5)
 
+      const maxi = d3.max(this.totalMaterialCost) 
+
     const y = d3.scaleLinear()
       .domain([20000, 40000])
       .range([height, 0]);
@@ -118,6 +120,8 @@ export class PlotCostsComponent implements OnInit {
     svg.append('g').call(d3.axisLeft(y));
 
     const dataPoints = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost }));
+
+
 
     svg.append('g')
       .selectAll("dot")
@@ -244,21 +248,14 @@ const legendRectSize = 13;
     const data = this['data'];
     const cost = this['costs'];
 
-    const totalMaterialCost = this.calculateAllMaterialCost(data, cost[0].Kosten_pro_Material);
+    this.totalMaterialCost = this.calculateAllMaterialCost(data, cost[0].Kosten_pro_Material);
     if(this.selectedItem !== "default"){
-      console.log(totalMaterialCost);
-      console.log(this.selectedItem == "Drive 1" )
-      console.log(totalMaterialCost.filter(item => item.productName === "Drive 1"))
-      const selectedData = totalMaterialCost.filter(item => item?.productName === this.selectedItem);
+      const selectedData = this.totalMaterialCost.filter((item: { productName: string; }) => item?.productName === this.selectedItem);
       this.createChart(selectedData);
 
       const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme);
       this.createChart(selectedData, emmsionCost);
     }
-   
-
-   
-
 
   }
 }
