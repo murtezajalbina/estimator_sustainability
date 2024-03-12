@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-/* import _ from 'lodash'; */
-import { DataServiceEmissions, DataServiceColors } from '../cart.service'; //service for injecting data
+import { DataServiceEmissions, DataServiceColors } from '../cart.service'; // Service for injecting data
 import { DataProp } from '../dataProp';
+import { SelectedItemService } from '../measuresService';
 
 @Component({
   selector: 'app-plot-emissions',
@@ -18,19 +18,33 @@ export class PlotEmissionsComponent implements OnInit {
 
   constructor(
     private dataService: DataServiceEmissions,
-    private dataColors: DataServiceColors
+    private dataColors: DataServiceColors,
+    private selectedItemService: SelectedItemService // Fügen Sie den Service hinzu
+
   ) {}
 
   ngOnInit(): void {
     this.dataService.getData().subscribe((data) => {
-      //read emissions data
       this['data'] = data;
     });
     this.dataColors.getData().subscribe((color) => {
-      //read color data
       this['colorPalette'] = color;
     });
+/*     this.selectedItemService.selectedItem$.subscribe((selectedItem) => {
+      if (selectedItem) {
+        const filteredData = this['data'].filter(
+          (product: { product: string; }) => product.product === selectedItem
+        );
+        this.updateEmissionsPlot(filteredData[0]);
+      }
+    }); */
+    
     this.createBarChart();
+  }
+
+  private updateEmissionsPlot(selectedProduct: DataProp): void {
+    // Fügen Sie hier die Logik hinzu, um das Emissionsplot mit den aktualisierten Daten zu erstellen
+    // Verwenden Sie die ausgewählten Produktinformationen (selectedProduct)
   }
 
   calculateMaxEmissionPerYear() {}
@@ -40,9 +54,9 @@ export class PlotEmissionsComponent implements OnInit {
 
     const data: DataProp[] = this['data'];
 
-    const selectedProduct = data[0]; // todo change this in future for product selection
+    const selectedProduct = data[0]; // Todo: change this in the future for product selection
 
-    const calcualteEmission = (component: any, volume: number) => {
+    const calculateEmission = (component: any, volume: number) => {
       return component.emission * component.quantity * volume;
     };
 
@@ -56,7 +70,7 @@ export class PlotEmissionsComponent implements OnInit {
       return resultArray;
     };
 
-    // Calculate all emissions for height of the plot
+    // Calculate all emissions for the height of the plot
     const calculateMaxEmission = (): number => {
       const emissionArray: number[] = selectedProduct.sales.map((s) =>
         calculateMaxEmissionPerYear(s)
@@ -72,7 +86,7 @@ export class PlotEmissionsComponent implements OnInit {
       .select(this.chartContainer.nativeElement)
       .append('svg')
       .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom + 20)
+      .attr('height', height + margin.top + margin.bottom + 200)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
@@ -96,13 +110,13 @@ export class PlotEmissionsComponent implements OnInit {
       .domain(materials)
       .range(this['colorPalette'].slice(0, materials.length));
 
-    // add x axis
+    // Add x axis
     svg
       .append('g')
       .attr('transform', 'translate(0,' + height + ')')
       .call(d3.axisBottom(x));
 
-    // add y axis
+    // Add y axis
     svg.append('g').call(d3.axisLeft(y));
 
     type SeriesProp = {
@@ -118,7 +132,7 @@ export class PlotEmissionsComponent implements OnInit {
         myData.push({
           year: sale.year,
           material: comp.material,
-          emission: calcualteEmission(comp, sale.volume),
+          emission: calculateEmission(comp, sale.volume),
         })
       )
     );
@@ -155,15 +169,15 @@ export class PlotEmissionsComponent implements OnInit {
       .stack()
       .keys(d3.union(myData.map((d) => d.material))) // Extract unique materials
       .value((d: any, key: string) => d[key] || 0)(
-      // Use a fallback value of 0 for missing emissions
-      transformedData as any
-    ); // Cast to 'any' if necessary to match d3's expected input type
+        // Use a fallback value of 0 for missing emissions
+        transformedData as any
+      ); // Cast to 'any' if necessary to match d3's expected input type
 
     // X label
     svg
       .append('text')
       .attr('x', width / 2)
-      .attr('y', height + 15)
+      .attr('y', height + 30)
       .attr('text-anchor', 'middle')
       .style('font-family', 'Segoe UI')
       .style('font-size', 12)
@@ -191,6 +205,7 @@ export class PlotEmissionsComponent implements OnInit {
       .style('font-size', 16)
       .style('font-weight', 'bold')
       .text('Emissions Over Time');
+
     this.createLegend(svg, materials, colorScale);
 
     svg.append('g').selectAll('g').data(series).join('g');
@@ -208,7 +223,7 @@ export class PlotEmissionsComponent implements OnInit {
       .data((D) => D)
       .join('rect')
       .attr('material', (d) => d.data['material'])
-      .attr('class', 'my-rect') // Fügen Sie die Klasse 'my-rect' hinzu
+      .attr('class', 'my-rect') // Add the class 'my-rect'
 
       .attr('x', (d) => x(d.data['year'].toString())!)
       .attr('y', (d) => y(d[1]))
@@ -222,7 +237,7 @@ export class PlotEmissionsComponent implements OnInit {
         svg.selectAll('.my-rect').style('opacity', 0.2);
         const material = (d3.select(this) as any).node().parentNode.__data__
           .key;
-        
+
         d3.selectAll('.my-rect').each(function (rectData) {
           var isSameMaterial =
             (d3.select(this) as any).node().parentNode.__data__.key ===
@@ -231,9 +246,7 @@ export class PlotEmissionsComponent implements OnInit {
           if (isSameMaterial) {
             d3.select(this).style('opacity', 1);
           }
-      
         });
-      
 
         d3.selectAll('.legend-item').style('opacity', (legendMaterial) =>
           legendMaterial === material ? 1 : 0.22
@@ -246,51 +259,31 @@ export class PlotEmissionsComponent implements OnInit {
           );
       })
       .on('mouseout', function (event, d) {
-        // make all bars visible again
+        // Make all bars visible again
         svg.selectAll('rect').style('opacity', 1);
-        // make all legend items visible again
-
+        // Make all legend items visible again
         d3.selectAll('.legend-item').style('opacity', 1);
       });
 
-    //desciption below the plot
-    svg
-      .append('text')
-      .attr('x', -30)
-      .attr('y', height + margin.bottom - 10)
-      .attr('text-anchor', 'start')
-      .attr('lengthAdjust', 'spacing')
-      .style('font-family', 'Segoe UI')
-      .style('font-size', 12)
-      .text(
-        'The emissions of your product are distributed among its materials. '
-      );
-
-    svg
-      .append('text')
-      .attr('x', -30)
-      .attr('y', height + margin.bottom)
-      .attr('text-anchor', 'start')
-      .attr('lengthAdjust', 'spacing')
-      .style('font-family', 'Segoe UI')
-      .style('font-size', 12)
-      .text(' The materials include aluminum, steel, and other components.');
+    // Description below the plot
   }
 
-  //legend for materials
   private createLegend(
     svg: d3.Selection<any, unknown, null, undefined>,
     materials: string[],
     colorScale: d3.ScaleOrdinal<string, string>
   ): void {
+    const margin = { top: 60, right: 90, bottom: 60, left: 80 };
+    const width = 400 - margin.left - margin.right;
+    const height = 300 - margin.top - margin.bottom;
+  
     const legend = svg
       .append('g')
-      .attr('transform', 'translate(' + 230 + ',5)')
-      .attr('width', 300);
-
+      .attr('transform', 'translate(' + margin.left + ',' + (height + margin.top + 10) + ')'); // Hier wurde die y-Koordinate angepasst
+  
     const legendRectSize = 13;
     const legendSpacing = 2;
-
+  
     const legendItems = legend
       .selectAll('.legend-item')
       .data(materials)
@@ -302,21 +295,20 @@ export class PlotEmissionsComponent implements OnInit {
         'transform',
         (d, i) => 'translate(0,' + i * (legendRectSize + legendSpacing) + ')'
       );
-
+  
     legendItems
       .append('rect')
       .attr('width', legendRectSize)
       .attr('height', legendRectSize)
       .attr('material', (d) => d)
       .style('fill', (d) => colorScale(d));
-
+  
     legendItems
       .append('text')
       .attr('x', legendRectSize + legendSpacing)
       .attr('y', legendRectSize - legendSpacing)
       .text((d) => d)
       .style('font-family', 'Segoe UI')
-      .style('font-size', '13px'); 
-
+      .style('font-size', '13px');
   }
 }

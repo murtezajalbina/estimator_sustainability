@@ -13,44 +13,152 @@ export class DataServiceEmissions {
       product: 'Drive 1',
       sales: [
         {
-          year: 2020,
+          year: 2023,
           volume: 200,
           components: [
-            { material: 'Aluminium', quantity: 3, emission: 3 },
-            { material: 'Steel', quantity: 4, emission: 5 },
-            { material: 'Other', quantity: 5, emission: 3 },
+            { material: 'Aluminium', quantity: 4, emission: 3 },
+            { material: 'Steel', quantity: 5, emission: 6 },
+            { material: 'Other', quantity: 6, emission: 4 },
           ],
         },
         {
-          year: 2021,
-          volume: 80,
+          year: 2024,
+          volume: 210,
           components: [
-            { material: 'Aluminium', quantity: 12, emission: 8 },
-            { material: 'Steel', quantity: 4, emission: 5 },
-            { material: 'Other', quantity: 5, emission: 3 },
+            { material: 'Aluminium', quantity: 5, emission: 4 },
+            { material: 'Steel', quantity: 6, emission: 7 },
+            { material: 'Other', quantity: 7, emission: 5 },
+          ],
+        },
+        {
+          year: 2025,
+          volume: 220,
+          components: [
+            { material: 'Aluminium', quantity: 6, emission: 5 },
+            { material: 'Steel', quantity: 7, emission: 8 },
+            { material: 'Other', quantity: 8, emission: 6 },
+          ],
+        },
+        {
+          year: 2026,
+          volume: 230,
+          components: [
+            { material: 'Aluminium', quantity: 7, emission: 6 },
+            { material: 'Steel', quantity: 8, emission: 9 },
+            { material: 'Other', quantity: 9, emission: 7 },
+          ],
+        },
+        {
+          year: 2027,
+          volume: 150,
+          components: [
+            { material: 'Aluminium', quantity: 8, emission: 7 },
+            { material: 'Steel', quantity: 9, emission: 10 },
+            { material: 'Other', quantity: 10, emission: 8 },
+          ],
+        },
+        {
+          year: 2028,
+          volume: 200,
+          components: [
+            { material: 'Aluminium', quantity: 9, emission: 8 },
+            { material: 'Steel', quantity: 10, emission: 11 },
+            { material: 'Other', quantity: 11, emission: 9 },
+          ],
+        },
+        {
+          year: 2029,
+          volume: 120,
+          components: [
+            { material: 'Aluminium', quantity: 10, emission: 9 },
+            { material: 'Steel', quantity: 11, emission: 12 },
+            { material: 'Other', quantity: 12, emission: 10 },
+          ],
+        },
+        {
+          year: 2030,
+          volume: 130,
+          components: [
+            { material: 'Aluminium', quantity: 11, emission: 10 },
+            { material: 'Steel', quantity: 12, emission: 13 },
+            { material: 'Other', quantity: 13, emission: 11 },
           ],
         },
       ],
-    },
+    },  
     {
       product: 'Drive 2',
       sales: [
         {
-          year: 2020,
-          volume: 120,
+          year: 2023,
+          volume: 180,
           components: [
-            { material: 'aluminium', quantity: 10, emission: 7 },
-            { material: 'steel', quantity: 6, emission: 4 },
-            { material: 'other', quantity: 4, emission: 2 },
+            { material: 'Aluminium', quantity: 3, emission: 2 },
+            { material: 'Steel', quantity: 4, emission: 5 },
+            { material: 'Other', quantity: 5, emission: 3 },
           ],
         },
         {
-          year: 2021,
-          volume: 90,
+          year: 2024,
+          volume: 190,
           components: [
-            { material: 'aluminium', quantity: 10, emission: 7 },
-            { material: 'steel', quantity: 6, emission: 4 },
-            { material: 'other', quantity: 4, emission: 2 },
+            { material: 'Aluminium', quantity: 4, emission: 3 },
+            { material: 'Steel', quantity: 5, emission: 6 },
+            { material: 'Other', quantity: 6, emission: 4 },
+          ],
+        },
+        {
+          year: 2025,
+          volume: 200,
+          components: [
+            { material: 'Aluminium', quantity: 5, emission: 4 },
+            { material: 'Steel', quantity: 6, emission: 7 },
+            { material: 'Other', quantity: 7, emission: 5 },
+          ],
+        },
+        {
+          year: 2026,
+          volume: 210,
+          components: [
+            { material: 'Aluminium', quantity: 6, emission: 5 },
+            { material: 'Steel', quantity: 7, emission: 8 },
+            { material: 'Other', quantity: 8, emission: 6 },
+          ],
+        },
+        {
+          year: 2027,
+          volume: 220,
+          components: [
+            { material: 'Aluminium', quantity: 7, emission: 6 },
+            { material: 'Steel', quantity: 8, emission: 9 },
+            { material: 'Other', quantity: 9, emission: 7 },
+          ],
+        },
+        {
+          year: 2028,
+          volume: 230,
+          components: [
+            { material: 'Aluminium', quantity: 8, emission: 7 },
+            { material: 'Steel', quantity: 9, emission: 10 },
+            { material: 'Other', quantity: 10, emission: 8 },
+          ],
+        },
+        {
+          year: 2029,
+          volume: 240,
+          components: [
+            { material: 'Aluminium', quantity: 9, emission: 8 },
+            { material: 'Steel', quantity: 10, emission: 11 },
+            { material: 'Other', quantity: 11, emission: 9 },
+          ],
+        },
+        {
+          year: 2030,
+          volume: 250,
+          components: [
+            { material: 'Aluminium', quantity: 10, emission: 9 },
+            { material: 'Steel', quantity: 11, emission: 12 },
+            { material: 'Other', quantity: 12, emission: 10 },
           ],
         },
       ],
@@ -91,9 +199,9 @@ export class DataServiceCosts {
   private costs = [
     {
       Kosten_pro_Material: {
-        Aluminium: 20,
-        Steel: 5,
-        Other: 10,
+        Aluminium: 7,
+        Steel: 7,
+        Other: 7,
       },
     },
 

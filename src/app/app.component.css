@@ -26,12 +26,11 @@
 
   .white_box {
     width: 450px; 
-    height: 330px; 
+    height: 400px; 
     background-color: white;
     border-radius: 2%; /*round design*/
     overflow: hidden; 
     position: relative;
-    margin-left: 20px;
   }
 
   .white_box_table {
