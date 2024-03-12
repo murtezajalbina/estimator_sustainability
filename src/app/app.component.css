@@ -25,8 +25,8 @@
   
 
   .white_box {
-    width: 400px; 
-    height: 400px; 
+    width: 450px; 
+    height: 380px; 
     background-color: white;
     border-radius: 2%; /*round design*/
     overflow: hidden; 

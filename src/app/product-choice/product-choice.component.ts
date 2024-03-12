@@ -33,7 +33,6 @@ export class ProductChoiceComponent implements OnInit {
   shareSelectedItem(selectedItem: string) {
     // Implement your logic to share the selected item with other components
     this.selectedItemService.updateSelectedItem(selectedItem);
-    console.log(this.selectedItemService.getSelectedItem())
     // Add your logic here to communicate with other components
   }
 }

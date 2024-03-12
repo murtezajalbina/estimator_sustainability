@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { DataServiceEmissions, DataServiceColors } from '../cart.service'; // Service for injecting data
+import { DataServiceEmissions, DataServiceColors, SelectedItemService } from '../cart.service'; //service for injecting data
 import { DataProp } from '../dataProp';
 import { ToggleService } from '../measures.service';
 
@@ -14,13 +14,15 @@ import { ToggleService } from '../measures.service';
 export class PlotEmissionsComponent implements OnInit {
   
   [x: string]: any;
+  selectedItem: string = "default"; 
 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
 
   constructor(
     private dataService: DataServiceEmissions,
     private dataColors: DataServiceColors,
-    private toggleService: ToggleService
+    private toggleService: ToggleService,
+    private selectedItemService: SelectedItemService,
   ) {}
 
   ngOnInit(): void {
@@ -30,16 +32,10 @@ export class PlotEmissionsComponent implements OnInit {
     this.dataColors.getData().subscribe((color) => {
       this['colorPalette'] = color;
     });
-/*     this.selectedItemService.selectedItem$.subscribe((selectedItem) => {
-      if (selectedItem) {
-        const filteredData = this['data'].filter(
-          (product: { product: string; }) => product.product === selectedItem
-        );
-        this.updateEmissionsPlot(filteredData[0]);
-      }
-    }); */
-    
-    this.createBarChart();
+    this.selectedItemService.selectedItem$.subscribe(selectedItem => {
+      this.selectedItem = selectedItem;
+      this.createBarChart();
+    });
   }
 
   calculateMaxEmissionPerYear() {}
@@ -57,8 +53,8 @@ export class PlotEmissionsComponent implements OnInit {
     
 
     const data: DataProp[] = this['data'];
-
-    const selectedProduct = data[0]; // Todo: change this in the future for product selection
+    const selectedData = data.filter((item: { product: string; }) => item?.product === this.selectedItem);
+    const selectedProduct = selectedData[0]; 
 
     const calculateEmission = (component: any, volume: number) => {
       return component.emission * component.quantity * volume;

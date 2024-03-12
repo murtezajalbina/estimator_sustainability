@@ -87,9 +87,9 @@ export class PlotCostsComponent implements OnInit {
 
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
 
-    const margin = { top: 60, right: 90, bottom: 50, left: 80 };
+    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
     const width = 450 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const height = 350 - margin.top - margin.bottom;
 
 
     const svg = d3
@@ -106,10 +106,16 @@ export class PlotCostsComponent implements OnInit {
       .range([0, width])
       .padding(0.5)
 
-      const maxi = d3.max(this.totalMaterialCost) 
+    const maxY=data.reduce((acc:any, curr:any) => {
+      return acc.totalMaterialCost > curr.totalMaterialCost ? acc : curr;}, data[0]);
+
+  const minY =data.reduce((acc:any, curr:any) => {
+    return acc.totalMaterialCost < curr.totalMaterialCost ? acc : curr;
+}, data[0]);
+
 
     const y = d3.scaleLinear()
-      .domain([20000, 40000])
+      .domain([minY.totalMaterialCost-5000, maxY.totalMaterialCost+5000])
       .range([height, 0]);
 
     svg
@@ -143,7 +149,7 @@ export class PlotCostsComponent implements OnInit {
       });
 
     const xScale = d3.scaleLinear().domain(data.map((s: any) => s.salesYear)).range([0, width]);
-    const yScale = d3.scaleLinear().domain([20000, 40000]).range([height, 0]);
+    const yScale = d3.scaleLinear().domain([minY.totalMaterialCost-5000, maxY.totalMaterialCost+5000]).range([height, 0]);
 
 
     const tooltip = d3.select(this.chartContainer.nativeElement)
@@ -206,7 +212,7 @@ export class PlotCostsComponent implements OnInit {
     svg
       .append('text')
       .attr('x', width / 2)
-      .attr('y', height + 25)
+      .attr('y', height + 30)
       .attr('fill', '#000')
       .attr('font-weight', 'bold')
       .attr('text-anchor', 'middle')
@@ -231,15 +237,18 @@ export class PlotCostsComponent implements OnInit {
       .style('font-family', 'Segoe UI')
       .style('font-size', 16)
       .style('font-weight', 'bold')
-      .text('Total cost of ' + this.selectedItem);
+      .text('Total Cost ');
 
-const legendRectSize = 13;
-  svg.append("rect").attr("x",200).attr("y",30).attr('width', legendRectSize)
-    .attr('height', legendRectSize).style("fill", this['colorPalette'][0])
-  svg.append("rect").attr("x",200).attr("y",50).attr('width', legendRectSize)
-    .attr('height', legendRectSize).style("fill", this['colorPalette'][3])
-  svg.append("text").attr("x", 215).attr("y", 40).text("totalcost").style("font-size", "12px").style('font-family', 'Segoe UI')
-  svg.append("text").attr("x", 215).attr("y", 60).text("totalcost with meassure").style("font-size", "12px").style('font-family', 'Segoe UI')
+      const legendRectSize = 13;
+
+      svg.append("rect").attr("x", width / 2 - 15).attr("y", height + 40).attr('width', legendRectSize)
+        .attr('height', legendRectSize).style("fill", this['colorPalette'][0])
+      
+      svg.append("rect").attr("x", width / 2 - 15).attr("y", height + 60).attr('width', legendRectSize)
+        .attr('height', legendRectSize).style("fill", this['colorPalette'][3])
+      
+      svg.append("text").attr("x", width / 2 ).attr("y", height + 50).text("Cost").style("font-size", "12px").style('font-family', 'Segoe UI')
+      svg.append("text").attr("x", width / 2 ).attr("y", height + 70).text("Cost with measure").style("font-size", "12px").style('font-family', 'Segoe UI');
       
   }
 

@@ -202,7 +202,6 @@ export class SelectedItemService {
   }
 
   getSelectedItem(): string {
-    console.log(this.selectedItemSubject.value)
     return this.selectedItemSubject.value;
   }
 }
