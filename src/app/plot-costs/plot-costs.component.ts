@@ -115,7 +115,7 @@ export class PlotCostsComponent implements OnInit {
 
 
     const y = d3.scaleLinear()
-      .domain([minY.totalMaterialCost-5000, maxY.totalMaterialCost+5000])
+      .domain([0, maxY.totalMaterialCost+5000])
       .range([height, 0]);
 
     svg
@@ -160,7 +160,7 @@ export class PlotCostsComponent implements OnInit {
     const line = d3.line()
       .x((d: any) => xScale(d.x) || 0)  // Use x scale to position
       .y((d: any) => yScale(d.y) || 0)  // Use y scale to position
-      .curve(d3.curveBasis);
+      .curve(d3.curveNatural);
 
     svg.append("path")
       .datum(dataPoints)
@@ -177,7 +177,7 @@ export class PlotCostsComponent implements OnInit {
         const line2 = d3.line()
       .x((d: any) => xScale(d.x) || 0)  // Use x scale to position
       .y((d: any) => yScale(d.y) || 0)  // Use y scale to position
-      .curve(d3.curveBasis);
+      .curve(d3.curveNatural);
 
     svg.append("path")
       .datum(dataPointsTotal)
