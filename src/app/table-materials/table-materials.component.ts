@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
+import { ToggleService } from '../measures.service';
+
 
 
 
@@ -12,7 +14,12 @@ declare var $: any;
   templateUrl: './table-materials.component.html',
   styleUrls: ['./table-materials.component.css']
 })
+
+
 export class TableMaterialsComponent implements AfterViewInit {
+  
+  constructor(private toggleService: ToggleService) {}
+
   headers = ['Reduce Waste', 'Process Efficiency', 'Switch technology', 'Green Compounds'];
   rows = [
     { name: 'Aluminum', toggles: [false, false, false, false], iconname: "bi bi-layers", color: "silver"},
@@ -20,18 +27,19 @@ export class TableMaterialsComponent implements AfterViewInit {
     { name: 'Other', toggles: [false, false, false, false], iconname: "bi bi-archive", color: "red" }
   ];
 
-  toggleButton(rowName: string, colName: string) {
-    const rowIndex = this.rows.findIndex(row => row.name === rowName);
-    const colIndex = this.headers.findIndex(header => header === colName);
-    this.rows[rowIndex].toggles[colIndex] = !this.rows[rowIndex].toggles[colIndex];
-  }
+// Methoden anpassen
+toggleButton(rowName: string, colName: string) {
+  const toggles = this.toggleService.getToggles(rowName);
+  const colIndex = this.headers.findIndex(header => header === colName);
+  toggles[colIndex] = !toggles[colIndex];
+  this.toggleService.setToggle(rowName, toggles);
+}
 
-  getToggleButtonValue(rowName: string, colName: string): boolean {
-    const rowIndex = this.rows.findIndex(row => row.name === rowName);
-    const colIndex = this.headers.findIndex(header => header === colName);
-    return this.rows[rowIndex].toggles[colIndex];
-  }
-
+getToggleButtonValue(rowName: string, colName: string): boolean {
+  const toggles = this.toggleService.getToggles(rowName);
+  const colIndex = this.headers.findIndex(header => header === colName);
+  return toggles[colIndex];
+}
   ngAfterViewInit() {
     // Aktiviere die Bootstrap Toggle-Funktion nachdem die Ansicht initialisiert wurde
     return;

@@ -8,9 +8,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { PlotROIComponent } from './plot-roi/plot-roi.component';
 import { ProductChoiceComponent } from './product-choice/product-choice.component';
 import { TableMaterialsComponent } from './table-materials/table-materials.component';
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
- 
+
+
 
 
 

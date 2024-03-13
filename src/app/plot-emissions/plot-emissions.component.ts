@@ -2,7 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { DataServiceEmissions, DataServiceColors } from '../cart.service'; // Service for injecting data
 import { DataProp } from '../dataProp';
-import { SelectedItemService } from '../measuresService';
+import { ToggleService } from '../measures.service';
 
 @Component({
   selector: 'app-plot-emissions',
@@ -12,6 +12,7 @@ import { SelectedItemService } from '../measuresService';
   styleUrls: ['../app.component.css']
 })
 export class PlotEmissionsComponent implements OnInit {
+  
   [x: string]: any;
 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
@@ -19,8 +20,7 @@ export class PlotEmissionsComponent implements OnInit {
   constructor(
     private dataService: DataServiceEmissions,
     private dataColors: DataServiceColors,
-    private selectedItemService: SelectedItemService // Fügen Sie den Service hinzu
-
+    private toggleService: ToggleService
   ) {}
 
   ngOnInit(): void {
@@ -42,15 +42,19 @@ export class PlotEmissionsComponent implements OnInit {
     this.createBarChart();
   }
 
-  private updateEmissionsPlot(selectedProduct: DataProp): void {
-    // Fügen Sie hier die Logik hinzu, um das Emissionsplot mit den aktualisierten Daten zu erstellen
-    // Verwenden Sie die ausgewählten Produktinformationen (selectedProduct)
-  }
-
   calculateMaxEmissionPerYear() {}
 
+  useToggleValues(): void {
+    const aluminumToggles = this.toggleService.getToggles('Aluminum');
+    console.log('hi', aluminumToggles)
+  }
+
   private createBarChart(): void {
+
+    
+
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
+    
 
     const data: DataProp[] = this['data'];
 
@@ -59,6 +63,8 @@ export class PlotEmissionsComponent implements OnInit {
     const calculateEmission = (component: any, volume: number) => {
       return component.emission * component.quantity * volume;
     };
+
+    this.useToggleValues();
 
     const calculateMaxEmissionPerYear = (sale: any): number => {
       const volume = sale.volume;
