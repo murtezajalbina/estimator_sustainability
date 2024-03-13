@@ -3,7 +3,8 @@
 }
 
 .select-product{
-  margin-left: 1rem;
+  margin-left: 0.7rem;
+  width: 500px;
 }
 
 .info-container {
@@ -25,12 +26,14 @@
   
 
   .white_box {
-    width: 400px; 
-    height: 400px; 
+    width: 450px; 
+    height: 380px; 
     background-color: white;
     border-radius: 2%; /*round design*/
     overflow: hidden; 
     position: relative;
+    margin-left: 20px;
+    margin-top: 2rem;
   }
 
   .white_box_table {
@@ -40,8 +43,8 @@
     border-radius: 2%; /*round design*/
     overflow: hidden; 
     position: relative;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 2rem;
+    margin-right: 2rem;
     
   }
 

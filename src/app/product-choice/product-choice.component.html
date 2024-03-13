@@ -1,8 +1,5 @@
 <div class="product-selection mx-4">
-    <select class="form-select" aria-label="Default select example">
-        <option selected>Open this select menu</option>
-        <option value="1">One</option>
-        <option value="2">Two</option>
-        <option value="3">Three</option>
-      </select>
+  <select [(ngModel)]="selectedValue" class="form-select" aria-label="Default select example" (change)="handleSelectionChange()">
+    <option *ngFor="let item of arrayList" [value]="item.product">{{ item.product }}</option>
+  </select>
 </div>

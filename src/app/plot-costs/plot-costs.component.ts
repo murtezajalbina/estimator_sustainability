@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { DataServiceColors, DataServiceCosts, DataServiceEmissions } from '../cart.service';
+import { DataServiceColors, DataServiceCosts, DataServiceEmissions, SelectedItemService } from '../cart.service';
 import { select } from 'd3';
 
 @Component({
@@ -13,15 +13,19 @@ import { select } from 'd3';
 export class PlotCostsComponent implements OnInit {
 
   [x: string]: any;
+  selectedItem: string = "default"; 
+  private totalMaterialCost: any
 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
 
   constructor(
     private dataService: DataServiceEmissions,
     private dataColors: DataServiceColors,
-    private dataCost: DataServiceCosts
-  ) { }
+    private dataCost: DataServiceCosts,
+    private selectedItemService: SelectedItemService,
 
+  ) { }
+   
   ngOnInit(): void {
     this.dataService.getData().subscribe((data) => {
       this['data'] = data;
@@ -34,8 +38,10 @@ export class PlotCostsComponent implements OnInit {
     this.dataCost.getData().subscribe((cost) => {
       this['costs'] = cost;
     });
-
-    this.createLinePlot();
+    this.selectedItemService.selectedItem$.subscribe(selectedItem => {
+      this.selectedItem = selectedItem;
+      this.createLinePlot();
+    });
   }
 
   private calculateEmmisionCost(cost_per_messure: any) {
@@ -81,9 +87,9 @@ export class PlotCostsComponent implements OnInit {
 
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
 
-    const margin = { top: 60, right: 90, bottom: 50, left: 80 };
+    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
     const width = 450 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const height = 350 - margin.top - margin.bottom;
 
 
     const svg = d3
@@ -100,8 +106,16 @@ export class PlotCostsComponent implements OnInit {
       .range([0, width])
       .padding(0.5)
 
+    const maxY=data.reduce((acc:any, curr:any) => {
+      return acc.totalMaterialCost > curr.totalMaterialCost ? acc : curr;}, data[0]);
+
+  const minY =data.reduce((acc:any, curr:any) => {
+    return acc.totalMaterialCost < curr.totalMaterialCost ? acc : curr;
+}, data[0]);
+
+
     const y = d3.scaleLinear()
-      .domain([20000, 40000])
+      .domain([0, maxY.totalMaterialCost+5000])
       .range([height, 0]);
 
     svg
@@ -112,6 +126,8 @@ export class PlotCostsComponent implements OnInit {
     svg.append('g').call(d3.axisLeft(y));
 
     const dataPoints = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost }));
+
+
 
     svg.append('g')
       .selectAll("dot")
@@ -133,7 +149,7 @@ export class PlotCostsComponent implements OnInit {
       });
 
     const xScale = d3.scaleLinear().domain(data.map((s: any) => s.salesYear)).range([0, width]);
-    const yScale = d3.scaleLinear().domain([20000, 40000]).range([height, 0]);
+    const yScale = d3.scaleLinear().domain([minY.totalMaterialCost-5000, maxY.totalMaterialCost+5000]).range([height, 0]);
 
 
     const tooltip = d3.select(this.chartContainer.nativeElement)
@@ -144,32 +160,18 @@ export class PlotCostsComponent implements OnInit {
     const line = d3.line()
       .x((d: any) => xScale(d.x) || 0)  // Use x scale to position
       .y((d: any) => yScale(d.y) || 0)  // Use y scale to position
-      .curve(d3.curveBasis);
+      .curve(d3.curveNatural);
 
-    svg.append("path")
-      .datum(dataPoints)
-      .attr("class", "line")
-      .style("fill", "none")
-      .style("stroke", this['colorPalette'][0])
-      .style("stroke-width", "2")
-      .attr("d", line);
 
       if(additionalCost !== undefined){
 
       const dataPointsTotal = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost + additionalCost }));
-
-        const line2 = d3.line()
+      
+        const line2 = 
+        d3.line<any>()
       .x((d: any) => xScale(d.x) || 0)  // Use x scale to position
       .y((d: any) => yScale(d.y) || 0)  // Use y scale to position
-      .curve(d3.curveBasis);
 
-    svg.append("path")
-      .datum(dataPointsTotal)
-      .attr("class", "line")
-      .style("fill", "none")
-      .style("stroke", this['colorPalette'][3])
-      .style("stroke-width", "2")
-      .attr("d", line2);
 
       svg.append('g')
       .selectAll("dot")
@@ -196,7 +198,7 @@ export class PlotCostsComponent implements OnInit {
     svg
       .append('text')
       .attr('x', width / 2)
-      .attr('y', height + 25)
+      .attr('y', height + 30)
       .attr('fill', '#000')
       .attr('font-weight', 'bold')
       .attr('text-anchor', 'middle')
@@ -221,15 +223,18 @@ export class PlotCostsComponent implements OnInit {
       .style('font-family', 'Segoe UI')
       .style('font-size', 16)
       .style('font-weight', 'bold')
-      .text('Total cost of ' + data[0].productName);
+      .text('Total Cost ');
 
-const legendRectSize = 13;
-  svg.append("rect").attr("x",200).attr("y",30).attr('width', legendRectSize)
-    .attr('height', legendRectSize).style("fill", this['colorPalette'][0])
-  svg.append("rect").attr("x",200).attr("y",50).attr('width', legendRectSize)
-    .attr('height', legendRectSize).style("fill", this['colorPalette'][3])
-  svg.append("text").attr("x", 215).attr("y", 40).text("totalcost").style("font-size", "12px").style('font-family', 'Segoe UI')
-  svg.append("text").attr("x", 215).attr("y", 60).text("totalcost with meassure").style("font-size", "12px").style('font-family', 'Segoe UI')
+      const legendRectSize = 13;
+
+      svg.append("rect").attr("x", width / 2 - 65).attr("y", height + 45).attr('width', legendRectSize)
+        .attr('height', legendRectSize).style("fill", this['colorPalette'][0])
+      
+      svg.append("rect").attr("x", width / 2 - 65).attr("y", height + 60).attr('width', legendRectSize)
+        .attr('height', legendRectSize).style("fill", this['colorPalette'][3])
+      
+      svg.append("text").attr("x", width / 2 -50 ).attr("y", height + 55).text("Costs").style("font-size", "13px").style('font-family', 'Segoe UI')
+      svg.append("text").attr("x", width / 2 -50).attr("y", height + 70).text("Costs with measure").style("font-size", "13px").style('font-family', 'Segoe UI');
       
   }
 
@@ -238,13 +243,14 @@ const legendRectSize = 13;
     const data = this['data'];
     const cost = this['costs'];
 
-    const totalMaterialCost = this.calculateAllMaterialCost(data, cost[0].Kosten_pro_Material);
-    const selectedData = totalMaterialCost.filter(item => item.productName === 'Drive 1');
-    this.createChart(selectedData);
+    this.totalMaterialCost = this.calculateAllMaterialCost(data, cost[0].Kosten_pro_Material);
+    if(this.selectedItem !== "default"){
+      const selectedData = this.totalMaterialCost.filter((item: { productName: string; }) => item?.productName === this.selectedItem);
+      this.createChart(selectedData);
 
-    const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme);
-    this.createChart(selectedData, emmsionCost);
-
+      const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme);
+      this.createChart(selectedData, emmsionCost);
+    }
 
   }
 }

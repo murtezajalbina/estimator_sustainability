@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { DataServiceEmissions, DataServiceColors } from '../cart.service'; // Service for injecting data
+import { DataServiceEmissions, DataServiceColors, SelectedItemService } from '../cart.service'; //service for injecting data
 import { DataProp } from '../dataProp';
 import { ToggleService } from '../measures.service';
 import { DataServiceReduction } from '../cart.service';
@@ -15,6 +15,7 @@ import { DataServiceReduction } from '../cart.service';
 export class PlotEmissionsComponent implements OnInit {
   
   [x: string]: any;
+  selectedItem: string = "default"; 
 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
 
@@ -22,6 +23,7 @@ export class PlotEmissionsComponent implements OnInit {
     private dataService: DataServiceEmissions,
     private dataColors: DataServiceColors,
     private toggleService: ToggleService,
+    private selectedItemService: SelectedItemService,
     private reductionService: DataServiceReduction
   ) {}
 
@@ -29,8 +31,14 @@ export class PlotEmissionsComponent implements OnInit {
     this.dataService.getData().subscribe((data) => {
       this['data'] = data;
     });
+    
     this.dataColors.getData().subscribe((color) => {
       this['colorPalette'] = color;
+    });
+
+    this.selectedItemService.selectedItem$.subscribe(selectedItem => {
+      this.selectedItem = selectedItem;
+      this.createBarChart();
     });
 
     this.reductionService.getData().subscribe((reduction) =>{
@@ -43,21 +51,7 @@ export class PlotEmissionsComponent implements OnInit {
       console.log('toggles:', toggles);
       this.createBarChart();
     });
-    
-   
-
-
-
-/*     this.selectedItemService.selectedItem$.subscribe((selectedItem) => 
-      if (selectedItem) {
-        const filteredData = this['data'].filter(
-          (product: { product: string; }) => product.product === selectedItem
-        );
-        this.updateEmissionsPlot(filteredData[0]);
-      }
-    }); */
-   
-  
+      
   }
 
   calculateMaxEmissionPerYear() {}
@@ -75,8 +69,9 @@ export class PlotEmissionsComponent implements OnInit {
    
 
     const data: DataProp[] = this['data'];
+    const selectedData = data.filter((item: { product: string; }) => item?.product === this.selectedItem);
+    const selectedProduct = selectedData[0]; 
 
-    const selectedProduct = data[0]; 
     const calculateEmission = (component: any, volume: number) => {
  
        
@@ -112,9 +107,9 @@ export class PlotEmissionsComponent implements OnInit {
       return Math.max(...emissionArray);
     };
 
-    const margin = { top: 60, right: 90, bottom: 60, left: 80 };
-    const width = 400 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
+    const width = 450 - margin.left - margin.right;
+    const height = 350 - margin.top - margin.bottom;
 
     const svg = d3
       .select(this.chartContainer.nativeElement)
@@ -222,7 +217,7 @@ export class PlotEmissionsComponent implements OnInit {
     svg
       .append('text')
       .attr('text-anchor', 'middle')
-      .attr('transform', 'translate(-30,' + height / 2.5 + ')rotate(-90)')
+      .attr('transform', 'translate(-40,' + height / 2.5 + ')rotate(-90)')
       .attr('y', -10)
       .style('font-family', 'Segoe UI')
       .style('margin-right', '90')
@@ -307,13 +302,13 @@ export class PlotEmissionsComponent implements OnInit {
     materials: string[],
     colorScale: d3.ScaleOrdinal<string, string>
   ): void {
-    const margin = { top: 60, right: 90, bottom: 60, left: 80 };
-    const width = 400 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
+    const width = 450 - margin.left - margin.right;
+    const height = 350 - margin.top - margin.bottom;
   
     const legend = svg
       .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + (height + margin.top + 10) + ')'); // Hier wurde die y-Koordinate angepasst
+      .attr('transform', 'translate(' + margin.left + ',' + (height + margin.top -10) + ')'); // Hier wurde die y-Koordinate angepasst
   
     const legendRectSize = 13;
     const legendSpacing = 2;
