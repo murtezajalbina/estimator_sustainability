@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { DataServiceEmissions, DataServiceColors } from '../cart.service'; // Service for injecting data
 import { DataProp } from '../dataProp';
 import { ToggleService } from '../measures.service';
+import { DataServiceReduction } from '../cart.service';
 
 @Component({
   selector: 'app-plot-emissions',
@@ -20,7 +21,8 @@ export class PlotEmissionsComponent implements OnInit {
   constructor(
     private dataService: DataServiceEmissions,
     private dataColors: DataServiceColors,
-    private toggleService: ToggleService
+    private toggleService: ToggleService,
+    private reductionService: DataServiceReduction
   ) {}
 
   ngOnInit(): void {
@@ -30,7 +32,23 @@ export class PlotEmissionsComponent implements OnInit {
     this.dataColors.getData().subscribe((color) => {
       this['colorPalette'] = color;
     });
-/*     this.selectedItemService.selectedItem$.subscribe((selectedItem) => {
+
+    this.reductionService.getData().subscribe((reduction) =>{
+      this['reduction'] = reduction;
+    }
+    )
+
+    this.toggleService.toggleChanged.subscribe(() => {
+      const toggles = this.toggleService.getToggles('Aluminum');
+      console.log('toggles:', toggles);
+      this.createBarChart();
+    });
+    
+   
+
+
+
+/*     this.selectedItemService.selectedItem$.subscribe((selectedItem) => 
       if (selectedItem) {
         const filteredData = this['data'].filter(
           (product: { product: string; }) => product.product === selectedItem
@@ -38,33 +56,43 @@ export class PlotEmissionsComponent implements OnInit {
         this.updateEmissionsPlot(filteredData[0]);
       }
     }); */
-    
-    this.createBarChart();
+   
+  
   }
 
   calculateMaxEmissionPerYear() {}
 
-  useToggleValues(): void {
-    const aluminumToggles = this.toggleService.getToggles('Aluminum');
-    console.log('hi', aluminumToggles)
+  get_toggles(rowName: string){
+    return this.toggleService.getToggles(rowName);
   }
+ 
+  
 
   private createBarChart(): void {
 
     
-
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
-    
+   
 
     const data: DataProp[] = this['data'];
 
-    const selectedProduct = data[0]; // Todo: change this in the future for product selection
-
+    const selectedProduct = data[0]; 
     const calculateEmission = (component: any, volume: number) => {
-      return component.emission * component.quantity * volume;
-    };
+ 
+       
+    const aluminiumtoggles = this.get_toggles('Aluminum')
+    const steeltoggles = this.get_toggles('Steel')
+    const othertoggles = this.get_toggles('Other')
 
-    this.useToggleValues();
+    let reduction = 0;
+    aluminiumtoggles.forEach((d) => {
+      if (d == true) {
+        reduction += 1000;
+      }
+    })
+      return component.emission * component.quantity * volume - reduction;
+    };
+    
 
     const calculateMaxEmissionPerYear = (sale: any): number => {
       const volume = sale.volume;
@@ -76,7 +104,7 @@ export class PlotEmissionsComponent implements OnInit {
       return resultArray;
     };
 
-    // Calculate all emissions for the height of the plot
+
     const calculateMaxEmission = (): number => {
       const emissionArray: number[] = selectedProduct.sales.map((s) =>
         calculateMaxEmissionPerYear(s)
@@ -177,7 +205,7 @@ export class PlotEmissionsComponent implements OnInit {
       .value((d: any, key: string) => d[key] || 0)(
         // Use a fallback value of 0 for missing emissions
         transformedData as any
-      ); // Cast to 'any' if necessary to match d3's expected input type
+      ); 
 
     // X label
     svg
