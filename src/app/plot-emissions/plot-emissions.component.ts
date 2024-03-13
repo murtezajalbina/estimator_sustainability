@@ -31,9 +31,11 @@ export class PlotEmissionsComponent implements OnInit {
     this.dataService.getData().subscribe((data) => {
       this['data'] = data;
     });
+    
     this.dataColors.getData().subscribe((color) => {
       this['colorPalette'] = color;
     });
+
     this.selectedItemService.selectedItem$.subscribe(selectedItem => {
       this.selectedItem = selectedItem;
       this.createBarChart();
