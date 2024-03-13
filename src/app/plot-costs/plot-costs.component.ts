@@ -13,7 +13,7 @@ import { select } from 'd3';
 export class PlotCostsComponent implements OnInit {
 
   [x: string]: any;
-  selectedItem: string = "default"; 
+selectedItem: string = "default"; 
   private totalMaterialCost: any
 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
@@ -25,7 +25,7 @@ export class PlotCostsComponent implements OnInit {
     private selectedItemService: SelectedItemService,
 
   ) { }
-   
+
   ngOnInit(): void {
     this.dataService.getData().subscribe((data) => {
       this['data'] = data;
@@ -38,10 +38,10 @@ export class PlotCostsComponent implements OnInit {
     this.dataCost.getData().subscribe((cost) => {
       this['costs'] = cost;
     });
-    this.selectedItemService.selectedItem$.subscribe(selectedItem => {
+this.selectedItemService.selectedItem$.subscribe(selectedItem => {
       this.selectedItem = selectedItem;
-      this.createLinePlot();
-    });
+    this.createLinePlot();
+});
   }
 
   private calculateEmmisionCost(cost_per_messure: any) {
@@ -166,12 +166,12 @@ export class PlotCostsComponent implements OnInit {
       if(additionalCost !== undefined){
 
       const dataPointsTotal = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost + additionalCost }));
-      
+
         const line2 = 
         d3.line<any>()
       .x((d: any) => xScale(d.x) || 0)  // Use x scale to position
       .y((d: any) => yScale(d.y) || 0)  // Use y scale to position
-
+      
 
       svg.append('g')
       .selectAll("dot")
@@ -225,16 +225,16 @@ export class PlotCostsComponent implements OnInit {
       .style('font-weight', 'bold')
       .text('Total Cost ');
 
-      const legendRectSize = 13;
-
+const legendRectSize = 13;
+  
       svg.append("rect").attr("x", width / 2 - 65).attr("y", height + 45).attr('width', legendRectSize)
-        .attr('height', legendRectSize).style("fill", this['colorPalette'][0])
-      
+    .attr('height', legendRectSize).style("fill", this['colorPalette'][0])
+  
       svg.append("rect").attr("x", width / 2 - 65).attr("y", height + 60).attr('width', legendRectSize)
-        .attr('height', legendRectSize).style("fill", this['colorPalette'][3])
-      
+    .attr('height', legendRectSize).style("fill", this['colorPalette'][3])
+  
       svg.append("text").attr("x", width / 2 -50 ).attr("y", height + 55).text("Costs").style("font-size", "13px").style('font-family', 'Segoe UI')
-      svg.append("text").attr("x", width / 2 -50).attr("y", height + 70).text("Costs with measure").style("font-size", "13px").style('font-family', 'Segoe UI');
+  svg.append("text").attr("x", width / 2 -50).attr("y", height + 70).text("Costs with measure").style("font-size", "13px").style('font-family', 'Segoe UI');
       
   }
 
@@ -246,11 +246,11 @@ export class PlotCostsComponent implements OnInit {
     this.totalMaterialCost = this.calculateAllMaterialCost(data, cost[0].Kosten_pro_Material);
     if(this.selectedItem !== "default"){
       const selectedData = this.totalMaterialCost.filter((item: { productName: string; }) => item?.productName === this.selectedItem);
-      this.createChart(selectedData);
+    this.createChart(selectedData);
 
-      const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme);
-      this.createChart(selectedData, emmsionCost);
-    }
+    const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme);
+    this.createChart(selectedData, emmsionCost);
+}
 
   }
 }
