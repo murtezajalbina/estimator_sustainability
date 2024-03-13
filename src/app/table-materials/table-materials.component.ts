@@ -33,7 +33,8 @@ toggleButton(rowName: string, colName: string) {
   const colIndex = this.headers.findIndex(header => header === colName);
   toggles[colIndex] = !toggles[colIndex];
   this.toggleService.setToggle(rowName, toggles);
-}
+/*   console.log('setting:', rowName, toggles)
+ */}
 
 getToggleButtonValue(rowName: string, colName: string): boolean {
   const toggles = this.toggleService.getToggles(rowName);
