@@ -162,30 +162,16 @@ export class PlotCostsComponent implements OnInit {
       .y((d: any) => yScale(d.y) || 0)  // Use y scale to position
       .curve(d3.curveNatural);
 
-    svg.append("path")
-      .datum(dataPoints)
-      .attr("class", "line")
-      .style("fill", "none")
-      .style("stroke", this['colorPalette'][0])
-      .style("stroke-width", "2")
-      .attr("d", line);
 
       if(additionalCost !== undefined){
 
       const dataPointsTotal = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost + additionalCost }));
-
-        const line2 = d3.line()
+      
+        const line2 = 
+        d3.line<any>()
       .x((d: any) => xScale(d.x) || 0)  // Use x scale to position
       .y((d: any) => yScale(d.y) || 0)  // Use y scale to position
-      .curve(d3.curveNatural);
 
-    svg.append("path")
-      .datum(dataPointsTotal)
-      .attr("class", "line")
-      .style("fill", "none")
-      .style("stroke", this['colorPalette'][3])
-      .style("stroke-width", "2")
-      .attr("d", line2);
 
       svg.append('g')
       .selectAll("dot")
@@ -241,14 +227,14 @@ export class PlotCostsComponent implements OnInit {
 
       const legendRectSize = 13;
 
-      svg.append("rect").attr("x", width / 2 - 15).attr("y", height + 40).attr('width', legendRectSize)
+      svg.append("rect").attr("x", width / 2 - 65).attr("y", height + 45).attr('width', legendRectSize)
         .attr('height', legendRectSize).style("fill", this['colorPalette'][0])
       
-      svg.append("rect").attr("x", width / 2 - 15).attr("y", height + 60).attr('width', legendRectSize)
+      svg.append("rect").attr("x", width / 2 - 65).attr("y", height + 60).attr('width', legendRectSize)
         .attr('height', legendRectSize).style("fill", this['colorPalette'][3])
       
-      svg.append("text").attr("x", width / 2 ).attr("y", height + 50).text("Cost").style("font-size", "12px").style('font-family', 'Segoe UI')
-      svg.append("text").attr("x", width / 2 ).attr("y", height + 70).text("Cost with measure").style("font-size", "12px").style('font-family', 'Segoe UI');
+      svg.append("text").attr("x", width / 2 -50 ).attr("y", height + 55).text("Costs").style("font-size", "13px").style('font-family', 'Segoe UI')
+      svg.append("text").attr("x", width / 2 -50).attr("y", height + 70).text("Costs with measure").style("font-size", "13px").style('font-family', 'Segoe UI');
       
   }
 

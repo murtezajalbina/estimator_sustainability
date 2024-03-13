@@ -45,9 +45,9 @@ export class PlotROIComponent implements OnInit {
       netProfit: netProfits[index],
     }));
   
-    const margin = { top: 60, right: 90, bottom: 60, left: 80 };
-    const width = 400 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
+    const width = 450 - margin.left - margin.right;
+    const height = 350 - margin.top - margin.bottom;
   
     const svg = d3
       .select(this.chartContainer.nativeElement)
@@ -149,7 +149,7 @@ export class PlotROIComponent implements OnInit {
 
     const legend = svg
       .append('g')
-      .attr('transform', 'translate(' + 80 + ',' + (180 + 60 + 10) + ')'); // Hier wurde die y-Koordinate angepasst
+      .attr('transform', 'translate(' + 90 + ',' + (180 + 60 +20 ) + ')'); // Hier wurde die y-Koordinate angepasst
   
     const legendRectSize = 13;
     const legendSpacing = 2;

@@ -80,9 +80,9 @@ export class PlotEmissionsComponent implements OnInit {
       return Math.max(...emissionArray);
     };
 
-    const margin = { top: 60, right: 90, bottom: 60, left: 80 };
-    const width = 400 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
+    const width = 450 - margin.left - margin.right;
+    const height = 350 - margin.top - margin.bottom;
 
     const svg = d3
       .select(this.chartContainer.nativeElement)
@@ -190,7 +190,7 @@ export class PlotEmissionsComponent implements OnInit {
     svg
       .append('text')
       .attr('text-anchor', 'middle')
-      .attr('transform', 'translate(-30,' + height / 2.5 + ')rotate(-90)')
+      .attr('transform', 'translate(-40,' + height / 2.5 + ')rotate(-90)')
       .attr('y', -10)
       .style('font-family', 'Segoe UI')
       .style('margin-right', '90')
@@ -275,13 +275,13 @@ export class PlotEmissionsComponent implements OnInit {
     materials: string[],
     colorScale: d3.ScaleOrdinal<string, string>
   ): void {
-    const margin = { top: 60, right: 90, bottom: 60, left: 80 };
-    const width = 400 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
+    const width = 450 - margin.left - margin.right;
+    const height = 350 - margin.top - margin.bottom;
   
     const legend = svg
       .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + (height + margin.top + 10) + ')'); // Hier wurde die y-Koordinate angepasst
+      .attr('transform', 'translate(' + margin.left + ',' + (height + margin.top -10) + ')'); // Hier wurde die y-Koordinate angepasst
   
     const legendRectSize = 13;
     const legendSpacing = 2;
