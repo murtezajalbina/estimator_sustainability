@@ -60,8 +60,6 @@ export class PlotEmissionsComponent implements OnInit {
     return this.toggleService.getToggles(rowName);
   }
  
-  
-
   private createBarChart(): void {
 
     
@@ -74,17 +72,15 @@ export class PlotEmissionsComponent implements OnInit {
 
     const calculateEmission = (component: any, volume: number) => {
  
-       
-    const aluminiumtoggles = this.get_toggles('Aluminum')
-    const steeltoggles = this.get_toggles('Steel')
-    const othertoggles = this.get_toggles('Other')
-
-    let reduction = 0;
-    aluminiumtoggles.forEach((d) => {
-      if (d == true) {
-        reduction += 1000;
-      }
-    })
+    const allToggles = {
+      'Aluminum': this.get_toggles('Aluminum'),
+      'Steel': this.get_toggles('Steel'),
+      'Other': this.get_toggles('Other')
+    };
+  
+    const reduction = Object.values(allToggles)
+  .flatMap(toggles => toggles)
+  .reduce((acc, toggle) => toggle ? acc + 1000 : acc, 0);
       return component.emission * component.quantity * volume - reduction;
     };
     
