@@ -12,7 +12,7 @@ declare var $: any;
   standalone: true,
   imports: [CommonModule],
   templateUrl: './table-materials.component.html',
-  styleUrls: ['./table-materials.component.css']
+  styleUrls: ['../app.component.css']
 })
 
 

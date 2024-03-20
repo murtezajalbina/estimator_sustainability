@@ -47,7 +47,6 @@ export class PlotEmissionsComponent implements OnInit {
     )
 
     this.toggleService.toggleChanged.subscribe(() => {
-      const toggles = this.toggleService.getToggles('Aluminium');
       this.createBarChart();
     });
       
