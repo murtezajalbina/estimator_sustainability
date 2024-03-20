@@ -47,14 +47,11 @@ export class PlotEmissionsComponent implements OnInit {
     )
 
     this.toggleService.toggleChanged.subscribe(() => {
-      const toggles = this.toggleService.getToggles('Aluminum');
-      console.log('toggles:', toggles);
+      const toggles = this.toggleService.getToggles('Aluminium');
       this.createBarChart();
     });
       
   }
-
-  calculateMaxEmissionPerYear() {}
 
   get_toggles(rowName: string){
     return this.toggleService.getToggles(rowName);
@@ -72,16 +69,16 @@ export class PlotEmissionsComponent implements OnInit {
 
     const calculateEmission = (component: any, volume: number) => {
  
-    const allToggles = {
-      'Aluminum': this.get_toggles('Aluminum'),
-      'Steel': this.get_toggles('Steel'),
-      'Other': this.get_toggles('Other')
-    };
+      const allToggles = {
+        'Aluminium': this.get_toggles('Aluminium'),
+        'Steel': this.get_toggles('Steel'),
+        'Other': this.get_toggles('Other')
+      };
   
-    const reduction = Object.values(allToggles)
-  .flatMap(toggles => toggles)
-  .reduce((acc, toggle) => toggle ? acc + 1000 : acc, 0);
-      return component.emission * component.quantity * volume - reduction;
+      const reduction = Object.values(allToggles)
+      .flatMap(toggles => toggles)
+      .reduce((acc, toggle) => toggle ? acc + 1000 : acc, 0);
+        return component.emission * component.quantity * volume - 0;
     };
     
 
@@ -182,7 +179,24 @@ export class PlotEmissionsComponent implements OnInit {
       {}
     );
 
-    // Step 2: Transform the aggregated data for d3.stack()
+    // Step 2: Calculate reductions for each material and update aggregatedData
+      const allToggles:any = {
+        'Aluminium': this.get_toggles('Aluminium'),
+        'Steel': this.get_toggles('Steel'),
+        'Other': this.get_toggles('Other')
+      };
+
+      for (const year in aggregatedData) {
+        for (const material in aggregatedData[year]) {
+          if (allToggles[material]) {
+            const reduction = allToggles[material].reduce((acc:any, toggle:boolean) => toggle ? acc + 1000 : acc, 0);
+            aggregatedData[year][material] -= reduction;
+            aggregatedData[year][material] = Math.max(aggregatedData[year][material], 0); // Ensure emission value is non-negative
+          }
+        }
+      }
+
+      // Step 3: Transform the aggregated data for d3.stack()
     const transformedData = Object.entries(aggregatedData).map(
       ([year, materials]) => ({
         year: +year, // Convert back to number
