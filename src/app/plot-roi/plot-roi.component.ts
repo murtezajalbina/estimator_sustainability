@@ -1,6 +1,6 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { DataServiceEmissions, DataServiceColors } from '../cart.service'; //service for injecting data
+import { DataServiceEmissions, DataServiceColors, SelectedItemService } from '../cart.service'; //service for injecting data
 
 
 @Component({
@@ -13,37 +13,58 @@ import { DataServiceEmissions, DataServiceColors } from '../cart.service'; //ser
 
 export class PlotROIComponent implements OnInit {
   colorPalette: string[] = []; 
+  selectedItem: string = 'default';
 
 
   constructor(
     private dataService: DataServiceEmissions,
-    private dataColors: DataServiceColors
+    private dataColors: DataServiceColors,
+    private selectedItemService: SelectedItemService,
   ) {}
 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
 
   ngOnInit(): void {
+    this.selectedItemService.selectedItem$.subscribe((selectedItem) => {
+      this.selectedItem = selectedItem;
+      this.plotChart(this.selectedItem);
+    });
+
+     this.dataColors.getData().subscribe((color) => {
+      this['colorPalette'] = color;
+    });
 
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
+
+    this.selectedItemService.selectedItem$.subscribe((selectedItem) => {
+      this.selectedItem = selectedItem;
+      this.plotChart(this.selectedItem);
+    });
 
     this.dataColors.getData().subscribe((colorPalette) => {
       
       this.colorPalette = colorPalette;
-      this.plotChart(); 
+      this.plotChart(this.selectedItem); 
     });
   }
 
   
-  private plotChart(): void {
-    const years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-    const revenues = [10000, 12000, 15000, 7000, 20000, 6000, 5555, 9000, 0, 0, 0];
-    const netProfits = [5000, 12000, 15000, 18000, 46343, 6000, 38000, 9000, 0, 0, 0];
-  
-    const data = years.map((year, index) => ({
-      year,
-      revenue: revenues[index],
-      netProfit: netProfits[index],
-    }));
+  private plotChart(selectedItem: string): void {
+     let years: number[];
+     let revenues: number[];
+     let netProfits: number[];
+
+    if (selectedItem == 'Drive 1'){
+     years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
+     revenues = [10000, 12000, 15000, 7000, 20000, 6000, 5555, 9000, 0, 0, 0];
+     netProfits = [5000, 12000, 15000, 18000, 46343, 6000, 38000, 9000, 0, 0, 0];
+    } 
+    else {
+     years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
+     revenues = [6000, 10000, 15000, 7000, 20000, 6000, 5555, 9000, 0, 0, 0];
+     netProfits = [6000, 12000, 12000, 20000, 46343, 5000, 6000, 9000, 0, 9000, 0];
+    }
+
   
     const margin = { top: 60, right: 50, bottom: 80, left: 90 };
     const width = 450 - margin.left - margin.right;
@@ -58,7 +79,11 @@ export class PlotROIComponent implements OnInit {
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
   
     this.createLegend(svg, ['Revenue', 'Net Profit'], [this.colorPalette[2], 'red']);
-  
+    const data = years.map((year, index) => ({
+      year,
+      revenue: revenues[index],
+      netProfit: netProfits[index],
+    }));
     const xScale = d3
       .scaleBand()
       .domain(years.map(String))
@@ -136,16 +161,12 @@ export class PlotROIComponent implements OnInit {
       .text('Revenues and Net Profits Over Time');
   }
   
-  
 
   private createLegend(
     svg: d3.Selection<any, unknown, null, undefined>,
     legendLabels: string[],
     legendColors: string[]
   ): void {
-
-
-
 
     const legend = svg
       .append('g')

@@ -1,21 +1,28 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { DataServiceEmissions, DataServiceColors, SelectedItemService } from '../cart.service'; //service for injecting data
+import {
+  DataServiceEmissions,
+  DataServiceColors,
+  SelectedItemService,
+} from '../cart.service'; //service for injecting data
 import { DataProp } from '../dataProp';
 import { ToggleService } from '../measures.service';
 import { DataServiceReduction } from '../cart.service';
+import { privateDecrypt } from 'crypto';
 
 @Component({
   selector: 'app-plot-emissions',
   standalone: true,
   imports: [],
   templateUrl: './plot-emissions.component.html',
-  styleUrls: ['../app.component.css']
+  styleUrls: ['../app.component.css'],
 })
 export class PlotEmissionsComponent implements OnInit {
-  
   [x: string]: any;
-  selectedItem: string = "default"; 
+  selectedItem: string = 'default';
+  emissionAluminium: any = [];
+  emissionSteel: any = [];
+  emissionOther: any = [];
 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
 
@@ -27,67 +34,85 @@ export class PlotEmissionsComponent implements OnInit {
     private reductionService: DataServiceReduction
   ) {}
 
+
+
   ngOnInit(): void {
     this.dataService.getData().subscribe((data) => {
       this['data'] = data;
     });
-    
+
     this.dataColors.getData().subscribe((color) => {
       this['colorPalette'] = color;
     });
 
-    this.selectedItemService.selectedItem$.subscribe(selectedItem => {
+    this.selectedItemService.selectedItem$.subscribe((selectedItem) => {
       this.selectedItem = selectedItem;
-      this.createBarChart();
+      this.createBarChart(this.selectedItem);
     });
 
-    this.reductionService.getData().subscribe((reduction) =>{
+    this.reductionService.getData().subscribe((reduction) => {
       this['reduction'] = reduction;
-    }
-    )
+    });
 
     this.toggleService.toggleChanged.subscribe(() => {
-      const toggles = this.toggleService.getToggles('Aluminum');
-      console.log('toggles:', toggles);
-      this.createBarChart();
+      this.createBarChart(this.selectedItem);
     });
-      
   }
 
-  calculateMaxEmissionPerYear() {}
-
-  get_toggles(rowName: string){
+  get_toggles(rowName: string) {
     return this.toggleService.getToggles(rowName);
   }
- 
-  
 
-  private createBarChart(): void {
+  private createBarChart(selectedItem: string): void {
+    let years: number[];
+    let emissionsAluminium: number[]
+    let  emissionsSteel: number[] 
+     let emissionsOther: number[] 
 
-    
+    if (selectedItem == 'Drive 1') {
+       years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
+       emissionsAluminium = [3200, 2800, 3900, 4100, 3700, 4300, 3800, 3400];
+       emissionsSteel  = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
+       emissionsOther = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
+    }
+    else {
+       years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
+       emissionsAluminium = [7000, 5000, 2000, 4100, 3700, 4300, 3800, 3400];
+       emissionsSteel = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
+       emissionsOther = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
+    }
+
+
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
-   
+
+    const allToggles: any = {
+      Aluminium: this.get_toggles('Aluminium'),
+      Steel: this.get_toggles('Steel'),
+      Other: this.get_toggles('Other'),
+    };
+
+    const isAluminiumTrue = allToggles['Aluminium'].some(
+      (value: boolean) => value
+    );
+
+    const isSteelTrue = allToggles['Steel'].some(
+      (value: boolean) => value
+    );
+    const isOtherTrue = allToggles['Other'].some(
+      (value: boolean) => value
+    );
+
+ 
 
     const data: DataProp[] = this['data'];
-    const selectedData = data.filter((item: { product: string; }) => item?.product === this.selectedItem);
-    const selectedProduct = selectedData[0]; 
+    const selectedData = data.filter(
+      (item: { product: string }) => item?.product === this.selectedItem
+    );
+    const selectedProduct = selectedData[0];
 
     const calculateEmission = (component: any, volume: number) => {
- 
-       
-    const aluminiumtoggles = this.get_toggles('Aluminum')
-    const steeltoggles = this.get_toggles('Steel')
-    const othertoggles = this.get_toggles('Other')
-
-    let reduction = 0;
-    aluminiumtoggles.forEach((d) => {
-      if (d == true) {
-        reduction += 1000;
-      }
-    })
-      return component.emission * component.quantity * volume - reduction;
+      return component.emission * component.quantity * volume;
     };
-    
 
     const calculateMaxEmissionPerYear = (sale: any): number => {
       const volume = sale.volume;
@@ -98,7 +123,6 @@ export class PlotEmissionsComponent implements OnInit {
       );
       return resultArray;
     };
-
 
     const calculateMaxEmission = (): number => {
       const emissionArray: number[] = selectedProduct.sales.map((s) =>
@@ -118,18 +142,15 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('height', height + margin.top + margin.bottom + 200)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-    const x = d3
-      .scaleBand()
-      .domain(selectedProduct.sales.map((s) => s.year.toString()))
-      .range([0, width])
-      .padding(0.1);
+    /*  
+   const years = selectedProduct.sales.map((s) => s.year.toString());
+   const x = d3.scaleBand().domain(years).range([0, width]).padding(0.1);
 
     const y = d3
       .scaleLinear()
-      .domain([0, calculateMaxEmission()])
+      .domain([0, 15000])
       .range([height, 0]);
-
+ */
     const materials = selectedProduct.sales[0].components.map(
       (m) => m.material
     );
@@ -139,7 +160,7 @@ export class PlotEmissionsComponent implements OnInit {
       .domain(materials)
       .range(this['colorPalette'].slice(0, materials.length));
 
-    // Add x axis
+    /* // Add x axis
     svg
       .append('g')
       .attr('transform', 'translate(0,' + height + ')')
@@ -147,62 +168,246 @@ export class PlotEmissionsComponent implements OnInit {
 
     // Add y axis
     svg.append('g').call(d3.axisLeft(y));
+    const maxEmission = calculateMaxEmission();
 
-    type SeriesProp = {
-      year: number;
-      material: string;
-      emission: number;
-    };
-
-    const myData: SeriesProp[] = [];
-
-    selectedProduct.sales.forEach((sale) =>
-      sale.components.forEach((comp) =>
-        myData.push({
-          year: sale.year,
-          material: comp.material,
-          emission: calculateEmission(comp, sale.volume),
-        })
-      )
+    this.emissionAluminium = selectedProduct.sales.map((s) =>
+      calculateEmission(s, s.volume)
     );
 
-    // The aggregated data's type is a record where the key is a string (year) and the value is another record
-    // The inner record's key is the material string, and its value is the emission number
-    type AggregatedDataType = Record<string, Record<string, number>>;
+    function processDataAluminium(
+      selectedProduct: any, material: string
+    ): { productName: string; salesYear: number; emission: number }[] {
+      let resultArray: {
+        productName: string;
+        salesYear: number;
+        emission: number;
+      }[] = [];
 
-    // Step 1: Aggregate emissions by year and material
-    const aggregatedData: AggregatedDataType = myData.reduce(
-      (acc: AggregatedDataType, { year, material, emission }) => {
-        const yearKey = year.toString(); // Convert year to string to use as a key
-        if (!acc[yearKey]) {
-          acc[yearKey] = {};
-        }
-        if (!acc[yearKey][material]) {
-          acc[yearKey][material] = 0;
-        }
-        acc[yearKey][material] += emission;
-        return acc;
-      },
-      {}
+      selectedProduct.sales.forEach((sales: any) => {
+        let dataAluminium = {
+          productName: selectedProduct.product,
+          salesYear: sales.year,
+          emission: 0,
+        };
+
+        sales.components.forEach((comp: any) => {
+          let data_aluminium;
+
+          if (comp.material === material) {
+            data_aluminium = calculateEmission(comp, sales.volume);
+          } else if (comp.material === 'Steel') {
+            data_aluminium = 0;
+          } else {
+            data_aluminium = 0;
+          }
+
+          dataAluminium.emission += data_aluminium;
+        });
+
+        resultArray.push(dataAluminium);
+      });
+
+      return resultArray;
+    } */
+
+    /*  const emissionsAluminium = processDataAluminium(selectedProduct, 'Aluminium').map(
+      (item) => item.emission
+    );
+    const emissionsSteel = processDataAluminium(selectedProduct, 'Steel').map(
+      (item) => item.emission
+    );
+    const emissionsOther = processDataAluminium(selectedProduct, 'Other').map(
+      (item) => item.emission
+    ); */
+
+ 
+    /*     
+    const dataLineAluminium: [number, number][] = createDataLine(years, emissionsAluminium);
+    const dataLineSteel: [number, number][] = createDataLine(years, emissionsSteel);
+    const dataLineOther: [number, number][] = createDataLine(years, emissionsOther);
+     */
+    /* 
+    function createLineGenerator(dataLine: [number, number][]): any {
+      return d3.line()(<any>dataLine);
+    }
+    
+    const lineGeneratorAluminium = createLineGenerator(dataLineAluminium);
+    const lineGeneratorSteel = createLineGenerator(dataLineSteel);
+    const lineGeneratorOther = createLineGenerator(dataLineOther);  */
+
+
+
+    const years2 = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
+    const emissionsAluminium2 = [3200, 2800, 3900, 4100, 3700, 4300, 3800, 3400];
+    const emissionsSteel2: number[] = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
+    const emissionsOther2: number[] = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
+
+    // Den maximalen Wert aus den drei maximalen Werten finden
+    const maxEmissions = Math.max(
+      Math.max(...emissionsAluminium),
+      Math.max(...emissionsSteel),
+      Math.max(...emissionsOther)
     );
 
-    // Step 2: Transform the aggregated data for d3.stack()
-    const transformedData = Object.entries(aggregatedData).map(
-      ([year, materials]) => ({
-        year: +year, // Convert back to number
-        ...materials,
-      })
-    );
+    const xScale = d3
+      .scaleBand()
+      .domain(years.map(String))
+      .range([0, width])
+      .padding(0.1);
 
-    const series = d3
-      .stack()
-      .keys(d3.union(myData.map((d) => d.material))) // Extract unique materials
-      .value((d: any, key: string) => d[key] || 0)(
-        // Use a fallback value of 0 for missing emissions
-        transformedData as any
-      ); 
+    const yScale = d3
+      .scaleLinear()
+      .domain([0, maxEmissions])
+      .range([height, 0]);
 
-    // X label
+    const x = d3.scaleLinear().domain([2023, 2030]).range([0, width]);
+    const y = d3.scaleLinear().domain([0, 10000]).range([height, 0]);
+
+    const lineGenerator = d3
+      .line()
+      .x((d) => x(d[0]))
+      .y((d) => y(d[1]));
+
+    const dataLineAluminium: [number, number][] = years.map((year, index) => [
+      year,
+      emissionsAluminium[index],
+    ]);
+    const dataLineSteel: [number, number][] = years.map((year, index) => [
+      year,
+      emissionsSteel[index],
+    ]);
+    const dataLineOther: [number, number][] = years.map((year, index) => [
+      year,
+      emissionsOther[index],
+    ]);
+
+    svg
+      .append('g')
+      .attr('transform', `translate(0, ${yScale(0)})`)
+      .call(d3.axisBottom(xScale))
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', 30)
+      .attr('fill', '#000')
+      .attr('font-weight', 'bold')
+      .attr('text-anchor', 'middle')
+      .style('font-size', 12)
+      .text('Year');
+
+      svg
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', -20)
+      .attr('text-anchor', 'middle')
+      .style('font-family', 'Segoe UI')
+      .style('font-size', 16)
+      .style('font-weight', 'bold')
+      .text('Emissions Over Time ');
+    svg
+      .append('g')
+      .call(d3.axisLeft(yScale))
+      .append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', -margin.left + 20)
+      .attr('x', -height / 2)
+      .attr('dy', '1em')
+      .attr('fill', '#000')
+      .attr('font-weight', 'bold')
+      .style('font-size', 12)
+      .attr('text-anchor', 'middle')
+      .text('Emissions');
+
+    svg
+      .append('path')
+      .datum(dataLineAluminium)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][0])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+    svg
+      .append('path')
+      .datum(dataLineSteel)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][1])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+    svg
+      .append('path')
+      .datum(dataLineOther)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][2])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+      if (isAluminiumTrue) {
+        const trueCountAluminium = allToggles['Aluminium'].filter((value: boolean) => value).length;
+        const newEmissionsAluminium = emissionsAluminium.map((num) => num - (500*trueCountAluminium));
+        const newdataLineAluminiumNew: [number, number][] = years.map((year, index) => [
+          year,
+          newEmissionsAluminium[index],
+        ]);
+
+        svg
+        .append('path')
+        .datum(newdataLineAluminiumNew)
+        .attr('fill', 'none')
+        .attr('stroke', this['colorPalette'][0])
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
+        .attr('d', lineGenerator);
+      }
+
+      if (isSteelTrue) {
+        const trueCountSteel = allToggles['Steel'].filter((value: boolean) => value).length;
+        const newEmissionsSteel = emissionsSteel.map((num) => num - (500*trueCountSteel));
+        const newDataLineSteel: [number, number][] = years.map((year, index) => [
+          year,
+          newEmissionsSteel[index],
+        ]);
+
+        svg
+        .append('path')
+        .datum(newDataLineSteel)
+        .attr('fill', 'none')
+        .attr('stroke', this['colorPalette'][1])
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5')
+        .attr('d', lineGenerator);
+      }
+  
+    if (isOtherTrue) {
+          const trueCountOther = allToggles['Other'].filter((value: boolean) => value).length;
+          const newEmissionsOther = emissionsOther.map((num) => num - (500*trueCountOther));
+          const newdataLineOther: [number, number][] = years.map((year, index) => [
+            year,
+            newEmissionsOther[index],
+          ]);
+
+          svg
+          .append('path')
+          .datum(newdataLineOther)
+          .attr('fill', 'none')
+          .attr('stroke', this['colorPalette'][2])
+          .attr('stroke-width', 2)
+          .attr('stroke-dasharray', '5,5')
+          .attr('d', lineGenerator);
+    }
+
+    this.createLegend(svg, materials, colorScale);
+  }
+
+  /*   svg
+    .append('path')
+    .datum(dataLineAluminium)
+    .attr('fill', 'none')
+    .attr('stroke', 'red') // Farbe der Linie
+    .attr('stroke-width', 2) // Breite der Linie
+    .attr('d', lineGeneratorAluminium); // Pfaddefinition für die Linie
+
+
+
     svg
       .append('text')
       .attr('x', width / 2)
@@ -233,69 +438,9 @@ export class PlotEmissionsComponent implements OnInit {
       .style('font-family', 'Segoe UI')
       .style('font-size', 16)
       .style('font-weight', 'bold')
-      .text('Emissions Over Time');
+      .text('Emissions Over Time'); */
 
-    this.createLegend(svg, materials, colorScale);
-
-    svg.append('g').selectAll('g').data(series).join('g');
-    svg
-      .append('g')
-      .selectAll('g')
-      .data(series)
-      .join('g')
-      .attr('fill', (d1) => {
-        const material = d1.key;
-        return colorScale(material);
-      })
-
-      .selectAll('rect')
-      .data((D) => D)
-      .join('rect')
-      .attr('material', (d) => d.data['material'])
-      .attr('class', 'my-rect') // Add the class 'my-rect'
-
-      .attr('x', (d) => x(d.data['year'].toString())!)
-      .attr('y', (d) => y(d[1]))
-      .attr('height', (d) => {
-        const y0 = y(d[0]);
-        const y1 = y(d[1]);
-        return isFinite(y0 - y1) ? y0 - y1 : 0;
-      })
-      .attr('width', x.bandwidth())
-      .on('mouseover', function (event, d) {
-        svg.selectAll('.my-rect').style('opacity', 0.2);
-        const material = (d3.select(this) as any).node().parentNode.__data__
-          .key;
-
-        d3.selectAll('.my-rect').each(function (rectData) {
-          var isSameMaterial =
-            (d3.select(this) as any).node().parentNode.__data__.key ===
-            material;
-
-          if (isSameMaterial) {
-            d3.select(this).style('opacity', 1);
-          }
-        });
-
-        d3.selectAll('.legend-item').style('opacity', (legendMaterial) =>
-          legendMaterial === material ? 1 : 0.22
-        );
-
-        svg
-          .selectAll('.legend-item rect')
-          .style('opacity', (legendMaterial) =>
-            legendMaterial === material ? 1 : 0.2
-          );
-      })
-      .on('mouseout', function (event, d) {
-        // Make all bars visible again
-        svg.selectAll('rect').style('opacity', 1);
-        // Make all legend items visible again
-        d3.selectAll('.legend-item').style('opacity', 1);
-      });
-
-    // Description below the plot
-  }
+  /*   this.createLegend(svg, materials, colorScale); */
 
   private createLegend(
     svg: d3.Selection<any, unknown, null, undefined>,
@@ -305,14 +450,17 @@ export class PlotEmissionsComponent implements OnInit {
     const margin = { top: 60, right: 50, bottom: 80, left: 90 };
     const width = 450 - margin.left - margin.right;
     const height = 350 - margin.top - margin.bottom;
-  
+
     const legend = svg
       .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + (height + margin.top -10) + ')'); // Hier wurde die y-Koordinate angepasst
-  
+      .attr(
+        'transform',
+        'translate(' + margin.left + ',' + (height + margin.top - 10) + ')'
+      ); // Hier wurde die y-Koordinate angepasst
+
     const legendRectSize = 13;
     const legendSpacing = 2;
-  
+
     const legendItems = legend
       .selectAll('.legend-item')
       .data(materials)
@@ -324,14 +472,14 @@ export class PlotEmissionsComponent implements OnInit {
         'transform',
         (d, i) => 'translate(0,' + i * (legendRectSize + legendSpacing) + ')'
       );
-  
+
     legendItems
       .append('rect')
       .attr('width', legendRectSize)
       .attr('height', legendRectSize)
       .attr('material', (d) => d)
       .style('fill', (d) => colorScale(d));
-  
+
     legendItems
       .append('text')
       .attr('x', legendRectSize + legendSpacing)

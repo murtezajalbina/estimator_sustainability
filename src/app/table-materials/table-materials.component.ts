@@ -12,7 +12,7 @@ declare var $: any;
   standalone: true,
   imports: [CommonModule],
   templateUrl: './table-materials.component.html',
-  styleUrls: ['./table-materials.component.css']
+  styleUrls: ['../app.component.css'],
 })
 
 
@@ -20,9 +20,9 @@ export class TableMaterialsComponent implements AfterViewInit {
   
   constructor(private toggleService: ToggleService) {}
 
-  headers = ['Reduce Waste', 'Process Efficiency', 'Switch technology', 'Green Compounds'];
+  headers = ['Reduce Waste', 'Process Efficiency', 'Switch Technology', 'Green Compounds'];
   rows = [
-    { name: 'Aluminum', toggles: [false, false, false, false], iconname: "bi bi-layers", color: "silver"},
+    { name: 'Aluminium', toggles: [false, false, false, false], iconname: "bi bi-layers", color: "silver"},
     { name: 'Steel', toggles: [false, false, false, false], iconname: "bi bi-record2-fill", color: "purple" },
     { name: 'Other', toggles: [false, false, false, false], iconname: "bi bi-archive", color: "red" }
   ];

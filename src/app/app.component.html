@@ -2,37 +2,45 @@
   <div class="header mb-2">
     <app-header></app-header>
   </div>
-  <div class="info-container" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  <!--   <div class="info-container" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
     The emissions of your company are distributed in different scopes, click here for more information.
     <span class="info-icon" title="Click here for more information">&#9432;</span>
-  </div>
-  <br/>
-  <div class="info-container" style="margin-bottom: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  </div> -->
+  <br />
+  <div
+    class="info-container"
+    style="
+      margin-bottom: 20px;
+      margin-left: 11px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    "
+  >
     Here, we consider the emissions of your products and materials.
   </div>
 
   <div class="select-product">
-    <app-product-choice/>
+    <app-product-choice />
   </div>
 
   <div class="plot-container mb-4 col-12">
     <div class="row">
       <div class="col">
-        <app-plot-emissions/>
+        <app-plot-emissions />
       </div>
       <div class="col">
-        <app-plot-costs/>
+        <app-plot-costs />
       </div>
       <div class="col">
-        <app-plot-roi/>
-      </div>  
-    </div>  
+        <app-plot-roi />
+      </div>
+    </div>
   </div>
 
   <div class="col-12">
-  <div class="white_box_table mt-4">
-    <app-table-materials/>
+    <div class="px-3">
+      <div class="white_box_table mt-4">
+        <app-table-materials />
+      </div>
+    </div>
   </div>
-</div>
-
 </div>

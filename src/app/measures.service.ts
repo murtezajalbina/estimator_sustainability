@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class ToggleService {
   toggles: { [key: string]: boolean[] } = {
-    'Aluminum': [false, false, false, false],
+    'Aluminium': [false, false, false, false],
     'Steel': [false, false, false, false],
     'Other': [false, false, false, false]
   };
