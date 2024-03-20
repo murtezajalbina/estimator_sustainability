@@ -1,9 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { DataServiceColors, DataServiceCosts, DataServiceEmissions, SelectedItemService } from '../cart.service';
-import { SelectedValuesService } from '../measures.service';
+import { ToggleService } from '../measures.service';
 import { combineLatest} from 'rxjs';
- 
+
 @Component({
   selector: 'app-plot-costs',
   standalone: true,
@@ -24,8 +24,8 @@ selectedItem: string = "default";
     private dataColors: DataServiceColors,
     private dataCost: DataServiceCosts,
     private selectedItemService: SelectedItemService,
-    private toggleService: SelectedValuesService,
- 
+    private toggleService: ToggleService,
+
   ) { }
  
   ngOnInit(): void {
@@ -40,17 +40,16 @@ selectedItem: string = "default";
     this.dataCost.getData().subscribe((cost) => {
       this['costs'] = cost;
     });
- 
-     this.selectedItemService.selectedItem$.subscribe(selectedItem => {
+
+    /* this.selectedItemService.selectedItem$.subscribe(selectedItem => {
         this.selectedItem = selectedItem;
         this.createLinePlot();
     });
- 
-      /*
+
     this.toggleService.toggleChanged.subscribe(() => {
       this.createLinePlot();
-    }); 
- /* 
+    }); */
+
     combineLatest([
       this.selectedItemService.selectedItem$,
       this.toggleService.toggleChanged
@@ -58,14 +57,13 @@ selectedItem: string = "default";
       this.selectedItem = selectedItem;
       this.createLinePlot();
     });
- 
+
   }
- 
+
   get_toggles(rowName: string){
     return this.toggleService.getToggles(rowName);
-  } */
-}
- 
+  }
+
   private calculateEmmisionCost(cost_per_messure: any,allToggles:any) {
     let totalExtraCostResult = 0;
     for (let i = 0; i < cost_per_messure.length; i++) {
@@ -183,16 +181,16 @@ selectedItem: string = "default";
   .append("div")
   .attr("class", "tooltip")
   .style("opacity", 0);
- 
- 
- 
- 
+
+
+
+
       if(additionalCost !== 0){
- 
+
       const dataPointsTotal = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost + additionalCost }));
- 
-     
- 
+
+      
+
       svg.append('g')
       .selectAll("dot")
       .data(dataPointsTotal)
@@ -211,12 +209,11 @@ selectedItem: string = "default";
       .on("mouseout", (d: any) => {
         tooltip.transition().duration(500).style("opacity", 0);
       });
- 
       const line2 = d3.line()
       .x((d: any) => x(d.x) || 0)
       .y((d: any) => y(d.y) || 0)
       .curve(d3.curveLinear);
-   
+    
     svg.append('path')
       .datum(dataPointsTotal)
       .attr('fill', 'none')
@@ -224,16 +221,16 @@ selectedItem: string = "default";
       .attr('stroke-width', 2)
       .attr('stroke', this['colorPalette'][1])
       .attr('d', line2);
- 
- 
+
+
       }
-     
- 
+      
+
       const line = d3.line()
       .x((d: any) => x(d.x) || 0)
       .y((d: any) => y(d.y) || 0)
       .curve(d3.curveLinear);
-   
+    
     svg.append('path')
       .datum(dataPoints)
       .attr('fill', 'none')
@@ -241,7 +238,6 @@ selectedItem: string = "default";
       .attr('stroke-width', 2)
       .attr('stroke', this['colorPalette'][0])
       .attr('d', line);
- 
     svg
       .append('text')
       .attr('x', width / 2)
@@ -307,20 +303,20 @@ selectedItem: string = "default";
   private createLinePlot() {
     const data = this['data'];
     const cost = this['costs'];
- 
-    /* const allToggles = {
+
+    const allToggles = {
       'Aluminium': this.get_toggles('Aluminium'),
       'Steel': this.get_toggles('Steel'),
       'Other': this.get_toggles('Other')
-    }; */
- 
+    };
+
     this.totalMaterialCost = this.calculateAllMaterialCost(data, cost[0].Kosten_pro_Material);
     if(this.selectedItem !== "default"){
       const selectedData = this.totalMaterialCost.filter((item: { productName: string; }) => item?.productName === this.selectedItem);
     this.createChart(selectedData);
- 
-/*     const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme, allToggles);
-    this.createChart(selectedData, emmsionCost); */
+
+    const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme,allToggles);
+    this.createChart(selectedData, emmsionCost);
 }
  
   }
