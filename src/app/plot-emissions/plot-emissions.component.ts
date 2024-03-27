@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, EventEmitter, Output, Input } from '@angular/core';
+import { Component, ElementRef, OnInit, OnChanges, ViewChild, EventEmitter, Output, Input, SimpleChanges } from '@angular/core';
 import * as d3 from 'd3';
 import {
   DataServiceEmissions,
@@ -21,7 +21,7 @@ import { privateDecrypt } from 'crypto';
   <div>{{ receivedData }}</div>`
 })
 
-export class PlotEmissionsComponent implements OnInit {
+export class PlotEmissionsComponent implements OnInit, OnChanges  {
   @Input() receivedData: string | undefined;
 
   [x: string]: any;
@@ -64,6 +64,20 @@ export class PlotEmissionsComponent implements OnInit {
     }); */
 
   
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Überprüfen, ob sich die receivedData-Eigenschaft geändert hat
+    if (changes['receivedData'] && !changes['receivedData'].firstChange) {
+      this.handleNewInput();
+    }
+  }
+
+  
+  handleNewInput(): void {
+    // Hier wird Ihre Logik ausgeführt, wenn ein neuer Input empfangen wird
+    console.log('Neue Daten empfangen:', this.receivedData);
+    // Führen Sie hier die entsprechenden Aktionen aus, die Sie möchten
   }
 
 /*   get_toggles(rowName: string) {

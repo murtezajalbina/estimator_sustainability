@@ -8,6 +8,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { PlotROIComponent } from './plot-roi/plot-roi.component';
 import { ProductChoiceComponent } from './product-choice/product-choice.component';
 import { TableMaterialsComponent } from './table-materials/table-materials.component';
+import { MaterialRelatedMeasure } from './material-related-measure';
 
 @Component({
   selector: 'app-root',
@@ -35,9 +36,9 @@ import { TableMaterialsComponent } from './table-materials/table-materials.compo
 
 export class AppComponent {
   title = 'dashboard';
-  dataToPass: string | undefined;
+  dataToPass: MaterialRelatedMeasure[] | undefined;
 
-  receiveData(data: string) {
+  receiveData(data: MaterialRelatedMeasure[] ) {
     this.dataToPass = data;
   }
 }

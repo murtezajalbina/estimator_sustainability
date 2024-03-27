@@ -17,6 +17,7 @@ import { EventEmitter, Output } from '@angular/core';
     <button (click)="sendData()">Send Data</button>
   `
 })
+
 export class TableMaterialsComponent implements OnInit {
   @Output() dataEmitter = new EventEmitter<MaterialRelatedMeasure[]>();
  
@@ -40,15 +41,13 @@ export class TableMaterialsComponent implements OnInit {
   addRow() {
     if (this.isCurrentRowValid()) {
       this.addRowToTable();
-      console.log('Tabelle ', this.table);
       this.currentRow = { material: '', measure: '', year: '', percent: '', editable: true };
     } else {
-      console.log('Bitte alle Optionen auswählen.');
     }
   }
-  sendData() {
-    const dataToSend = this.table;
-    this.dataEmitter.emit(dataToSend);
+  sendData(table: MaterialRelatedMeasure[]) {
+    this.dataEmitter.emit(table);
+   
   }
 
   addRowToTable() {
@@ -65,7 +64,7 @@ export class TableMaterialsComponent implements OnInit {
       this.currentRow.editable = false;
 
       
-      this.sendData()
+      this.sendData(this.table)
       console.log('Aktualisierte Tabelle:', this.table);
       
     } else {
