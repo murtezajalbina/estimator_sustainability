@@ -9,10 +9,6 @@ import { PlotROIComponent } from './plot-roi/plot-roi.component';
 import { ProductChoiceComponent } from './product-choice/product-choice.component';
 import { TableMaterialsComponent } from './table-materials/table-materials.component';
 
-
-
-
-
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -28,10 +24,20 @@ import { TableMaterialsComponent } from './table-materials/table-materials.compo
     TableMaterialsComponent
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
+  template: `
+  <app-table-materials (dataEmitter)="receiveData($event)"></app-table-materials>
+  <app-plot-emissions [receivedData]="dataToPass"></app-plot-emissions>
+`
+
 })
 
 
 export class AppComponent {
   title = 'dashboard';
+  dataToPass: string | undefined;
+
+  receiveData(data: string) {
+    this.dataToPass = data;
+  }
 }

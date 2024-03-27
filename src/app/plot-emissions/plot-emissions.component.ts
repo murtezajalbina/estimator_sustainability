@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, EventEmitter, Output, Input } from '@angular/core';
 import * as d3 from 'd3';
 import {
   DataServiceEmissions,
@@ -6,9 +6,10 @@ import {
   SelectedItemService,
 } from '../cart.service'; //service for injecting data
 import { DataProp } from '../dataProp';
-import { ToggleService } from '../measures.service';
+import { SelectedValuesService  } from '../measures.service';
 import { DataServiceReduction } from '../cart.service';
 import { privateDecrypt } from 'crypto';
+
 
 @Component({
   selector: 'app-plot-emissions',
@@ -16,25 +17,29 @@ import { privateDecrypt } from 'crypto';
   imports: [],
   templateUrl: './plot-emissions.component.html',
   styleUrls: ['../app.component.css'],
+  template: `
+  <div>{{ receivedData }}</div>`
 })
+
 export class PlotEmissionsComponent implements OnInit {
+  @Input() receivedData: string | undefined;
+
   [x: string]: any;
   selectedItem: string = 'default';
   emissionAluminium: any = [];
   emissionSteel: any = [];
   emissionOther: any = [];
 
+  
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
 
   constructor(
     private dataService: DataServiceEmissions,
     private dataColors: DataServiceColors,
-    private toggleService: ToggleService,
+    private SelectedValueService: SelectedValuesService ,
     private selectedItemService: SelectedItemService,
     private reductionService: DataServiceReduction
   ) {}
-
-
 
   ngOnInit(): void {
     this.dataService.getData().subscribe((data) => {
@@ -54,16 +59,19 @@ export class PlotEmissionsComponent implements OnInit {
       this['reduction'] = reduction;
     });
 
-    this.toggleService.toggleChanged.subscribe(() => {
+    /* this.SelectedValueService.toggleChanged.subscribe(() => {
       this.createBarChart(this.selectedItem);
-    });
+    }); */
+
+  
   }
 
-  get_toggles(rowName: string) {
+/*   get_toggles(rowName: string) {
     return this.toggleService.getToggles(rowName);
-  }
+  } */
 
   private createBarChart(selectedItem: string): void {
+
     let years: number[];
     let emissionsAluminium: number[]
     let  emissionsSteel: number[] 
@@ -84,12 +92,12 @@ export class PlotEmissionsComponent implements OnInit {
 
 
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
-
+/* 
     const allToggles: any = {
       Aluminium: this.get_toggles('Aluminium'),
       Steel: this.get_toggles('Steel'),
       Other: this.get_toggles('Other'),
-    };
+    }; 
 
     const isAluminiumTrue = allToggles['Aluminium'].some(
       (value: boolean) => value
@@ -102,7 +110,7 @@ export class PlotEmissionsComponent implements OnInit {
       (value: boolean) => value
     );
 
- 
+ */
 
     const data: DataProp[] = this['data'];
     const selectedData = data.filter(
@@ -340,7 +348,7 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('stroke', this['colorPalette'][2])
       .attr('stroke-width', 2)
       .attr('d', lineGenerator);
-
+/* 
       if (isAluminiumTrue) {
         const trueCountAluminium = allToggles['Aluminium'].filter((value: boolean) => value).length;
         const newEmissionsAluminium = emissionsAluminium.map((num) => num - (500*trueCountAluminium));
@@ -394,7 +402,7 @@ export class PlotEmissionsComponent implements OnInit {
           .attr('stroke-dasharray', '5,5')
           .attr('d', lineGenerator);
     }
-
+ */
     this.createLegend(svg, materials, colorScale);
   }
 
@@ -447,6 +455,8 @@ export class PlotEmissionsComponent implements OnInit {
     materials: string[],
     colorScale: d3.ScaleOrdinal<string, string>
   ): void {
+
+    
     const margin = { top: 60, right: 50, bottom: 80, left: 90 };
     const width = 450 - margin.left - margin.right;
     const height = 350 - margin.top - margin.bottom;

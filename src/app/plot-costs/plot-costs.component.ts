@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import { DataServiceColors, DataServiceCosts, DataServiceEmissions, SelectedItemService } from '../cart.service';
-import { ToggleService } from '../measures.service';
+import { SelectedValuesService } from '../measures.service';
 import { combineLatest} from 'rxjs';
  
 @Component({
@@ -24,7 +24,7 @@ selectedItem: string = "default";
     private dataColors: DataServiceColors,
     private dataCost: DataServiceCosts,
     private selectedItemService: SelectedItemService,
-    private toggleService: ToggleService,
+    private toggleService: SelectedValuesService,
  
   ) { }
  
@@ -41,15 +41,16 @@ selectedItem: string = "default";
       this['costs'] = cost;
     });
  
-    /* this.selectedItemService.selectedItem$.subscribe(selectedItem => {
+     this.selectedItemService.selectedItem$.subscribe(selectedItem => {
         this.selectedItem = selectedItem;
         this.createLinePlot();
     });
  
+      /*
     this.toggleService.toggleChanged.subscribe(() => {
       this.createLinePlot();
-    }); */
- 
+    }); 
+ /* 
     combineLatest([
       this.selectedItemService.selectedItem$,
       this.toggleService.toggleChanged
@@ -62,7 +63,8 @@ selectedItem: string = "default";
  
   get_toggles(rowName: string){
     return this.toggleService.getToggles(rowName);
-  }
+  } */
+}
  
   private calculateEmmisionCost(cost_per_messure: any,allToggles:any) {
     let totalExtraCostResult = 0;
@@ -288,19 +290,19 @@ const legendRectSize = 13;
     const data = this['data'];
     const cost = this['costs'];
  
-    const allToggles = {
+    /* const allToggles = {
       'Aluminium': this.get_toggles('Aluminium'),
       'Steel': this.get_toggles('Steel'),
       'Other': this.get_toggles('Other')
-    };
+    }; */
  
     this.totalMaterialCost = this.calculateAllMaterialCost(data, cost[0].Kosten_pro_Material);
     if(this.selectedItem !== "default"){
       const selectedData = this.totalMaterialCost.filter((item: { productName: string; }) => item?.productName === this.selectedItem);
     this.createChart(selectedData);
  
-    const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme, allToggles);
-    this.createChart(selectedData, emmsionCost);
+/*     const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme, allToggles);
+    this.createChart(selectedData, emmsionCost); */
 }
  
   }

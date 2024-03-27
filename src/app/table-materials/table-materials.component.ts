@@ -1,49 +1,93 @@
 import { CommonModule } from '@angular/common';
-import { Component, AfterViewInit } from '@angular/core';
-import { ToggleService } from '../measures.service';
+import { Component, OnInit } from '@angular/core';
+import { SelectedValuesService } from '../measures.service';
+import { NgModel } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { MaterialRelatedMeasure } from '../material-related-measure';
+import { EventEmitter, Output } from '@angular/core';
 
-
-
-
-declare var $: any;
 
 @Component({
   selector: 'app-table-materials',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './table-materials.component.html',
   styleUrls: ['../app.component.css'],
+  template: `
+    <button (click)="sendData()">Send Data</button>
+  `
 })
-
-
-export class TableMaterialsComponent implements AfterViewInit {
+export class TableMaterialsComponent implements OnInit {
+  @Output() dataEmitter = new EventEmitter<MaterialRelatedMeasure[]>();
+ 
   
-  constructor(private toggleService: ToggleService) {}
+  table: MaterialRelatedMeasure[] = [];
+  currentRow: any;
+  nextRowIndex = 1;
 
-  headers = ['Reduce Waste', 'Process Efficiency', 'Switch Technology', 'Green Compounds'];
-  rows = [
-    { name: 'Aluminium', toggles: [false, false, false, false], iconname: "bi bi-layers", color: "silver"},
-    { name: 'Steel', toggles: [false, false, false, false], iconname: "bi bi-record2-fill", color: "purple" },
-    { name: 'Other', toggles: [false, false, false, false], iconname: "bi bi-archive", color: "red" }
-  ];
+  years: number[] = Array.from({ length: 8 }, (_, index) => 2023 + index);
+  percents: number[] = Array.from(
+    { length: 10 },
+    (_, index) => (index + 1) * 10
+  );
 
-// Methoden anpassen
-toggleButton(rowName: string, colName: string) {
-  const toggles = this.toggleService.getToggles(rowName);
-  const colIndex = this.headers.findIndex(header => header === colName);
-  toggles[colIndex] = !toggles[colIndex];
-  this.toggleService.setToggle(rowName, toggles);
-/*   console.log('setting:', rowName, toggles)
- */}
+  constructor(private selectedValuesService: SelectedValuesService) {}
 
-getToggleButtonValue(rowName: string, colName: string): boolean {
-  const toggles = this.toggleService.getToggles(rowName);
-  const colIndex = this.headers.findIndex(header => header === colName);
-  return toggles[colIndex];
-}
-  ngAfterViewInit() {
-    // Aktiviere die Bootstrap Toggle-Funktion nachdem die Ansicht initialisiert wurde
-    return;
-    /* $('[data-toggle="toggle"]').bootstrapToggle(); */
+  ngOnInit() {
+    this.currentRow = { material: '', measure: '', year: '', percent: '', editable: true };
   }
+
+  addRow() {
+    if (this.isCurrentRowValid()) {
+      this.addRowToTable();
+      console.log('Tabelle ', this.table);
+      this.currentRow = { material: '', measure: '', year: '', percent: '', editable: true };
+    } else {
+      console.log('Bitte alle Optionen auswählen.');
+    }
+  }
+  sendData() {
+    const dataToSend = this.table;
+    this.dataEmitter.emit(dataToSend);
+  }
+
+  addRowToTable() {
+    if (this.isCurrentRowValid()) {
+      const newMaterialRelatedMeasure: MaterialRelatedMeasure = {
+        material: this.currentRow.material,
+        measure: this.currentRow.measure,
+        year: this.currentRow.year,
+        percent: this.currentRow.percent,
+      };
+      this.table.push(newMaterialRelatedMeasure);
+      
+      // Setze editable auf false, um die Zeile nicht mehr bearbeitbar zu machen
+      this.currentRow.editable = false;
+
+      
+      this.sendData()
+      console.log('Aktualisierte Tabelle:', this.table);
+      
+    } else {
+      console.log('Bitte alle Optionen auswählen.');
+    }
+  }
+
+  isCurrentRowValid(): boolean {
+    if (
+      !this.currentRow.material ||
+      !this.currentRow.measure ||
+      !this.currentRow.year ||
+      !this.currentRow.percent
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  saveSelectedValues(selectedValue: any) {
+    this.selectedValuesService.addSelectedValue(selectedValue);
+  }
+  
 }
