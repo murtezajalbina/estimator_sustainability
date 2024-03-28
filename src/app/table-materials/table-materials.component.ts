@@ -35,19 +35,19 @@ export class TableMaterialsComponent implements OnInit {
   constructor(private selectedValuesService: SelectedValuesService) {}
 
   ngOnInit() {
-    this.currentRow = { material: '', measure: '', year: '', percent: '', editable: true };
+    this.currentRow = { material: '', measure: '', year: '', percent: '' };
   }
 
   addRow() {
     if (this.isCurrentRowValid()) {
       this.addRowToTable();
-      this.currentRow = { material: '', measure: '', year: '', percent: '', editable: true };
+      this.currentRow = { material: '', measure: '', year: '', percent: '' };
     } else {
     }
   }
   sendData(table: MaterialRelatedMeasure[]) {
     this.dataEmitter.emit(table);
-    console.log(typeof table)
+    console.log('Tabelle: ', table)
   }
 
   addRowToTable() {
@@ -60,8 +60,6 @@ export class TableMaterialsComponent implements OnInit {
       };
       this.table.push(newMaterialRelatedMeasure);
       
-      // Setze editable auf false, um die Zeile nicht mehr bearbeitbar zu machen
-      this.currentRow.editable = false;
 
       
       this.sendData(this.table)

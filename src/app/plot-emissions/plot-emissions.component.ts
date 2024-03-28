@@ -1,16 +1,27 @@
-import { Component, ElementRef, OnInit, OnChanges, ViewChild, EventEmitter, Output, Input, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  OnChanges,
+  ViewChild,
+  EventEmitter,
+  Output,
+  Input,
+  SimpleChanges,
+} from '@angular/core';
 import * as d3 from 'd3';
 import {
   DataServiceEmissions,
   DataServiceColors,
   SelectedItemService,
-} from '../cart.service'; //service for injecting data
+} from '../cart.service';
 import { DataProp } from '../dataProp';
-import { SelectedValuesService  } from '../measures.service';
+import { SelectedValuesService } from '../measures.service';
 import { DataServiceReduction } from '../cart.service';
 import { privateDecrypt } from 'crypto';
 import { MaterialRelatedMeasure } from '../material-related-measure';
-
+import { DoCheck } from '@angular/core';
+import { table } from 'console';
 
 @Component({
   selector: 'app-plot-emissions',
@@ -18,11 +29,9 @@ import { MaterialRelatedMeasure } from '../material-related-measure';
   imports: [],
   templateUrl: './plot-emissions.component.html',
   styleUrls: ['../app.component.css'],
-  template: `
-  <div>{{ receivedData }}</div>`
+  template: ` <div>{{ receivedData }}</div>`,
 })
-
-export class PlotEmissionsComponent implements OnInit, OnChanges  {
+export class PlotEmissionsComponent implements OnInit {
   @Input() receivedData: MaterialRelatedMeasure[] | undefined;
 
   [x: string]: any;
@@ -31,13 +40,12 @@ export class PlotEmissionsComponent implements OnInit, OnChanges  {
   emissionSteel: any = [];
   emissionOther: any = [];
 
-  
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
 
   constructor(
     private dataService: DataServiceEmissions,
     private dataColors: DataServiceColors,
-    private SelectedValueService: SelectedValuesService ,
+    private SelectedValueService: SelectedValuesService,
     private selectedItemService: SelectedItemService,
     private reductionService: DataServiceReduction
   ) {}
@@ -51,9 +59,35 @@ export class PlotEmissionsComponent implements OnInit, OnChanges  {
       this['colorPalette'] = color;
     });
 
+    const table: MaterialRelatedMeasure[] = [
+      {
+        material: 'Aluminium',
+        measure: 'Green Compounds',
+        year: 2026,
+        percent: 80,
+      },
+      {
+        material: 'Steel',
+        measure: 'Green Compounds',
+        year: 2028,
+        percent: 65,
+      },
+      {
+        material: 'Other',
+        measure: 'Green Compounds',
+        year: 2028,
+        percent: 40,
+      },
+      {
+        material: 'Steel',
+        measure: 'Green Compounds',
+        year: 2024,
+        percent: 40,
+      },
+    ];
     this.selectedItemService.selectedItem$.subscribe((selectedItem) => {
       this.selectedItem = selectedItem;
-      this.createBarChart(this.selectedItem);
+      this.createBarChart(this.selectedItem, table);
     });
 
     this.reductionService.getData().subscribe((reduction) => {
@@ -63,54 +97,100 @@ export class PlotEmissionsComponent implements OnInit, OnChanges  {
     /* this.SelectedValueService.toggleChanged.subscribe(() => {
       this.createBarChart(this.selectedItem);
     }); */
-
-  
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // Überprüfen, ob sich die receivedData-Eigenschaft geändert hat
-    if (changes['receivedData'] && !changes['receivedData'].firstChange) {
-      this.handleNewInput();
-      console.log('xxx')
-    }
-    console.log('yyy')
-  }
-
-  
-  handleNewInput(): void {
-    // Hier wird Ihre Logik ausgeführt, wenn ein neuer Input empfangen wird
-    console.log('Neue Daten empfangen:', this.receivedData);
-    // Führen Sie hier die entsprechenden Aktionen aus, die Sie möchten
-  }
-
-/*   get_toggles(rowName: string) {
+  /*   get_toggles(rowName: string) {
     return this.toggleService.getToggles(rowName);
   } */
 
-  private createBarChart(selectedItem: string): void {
-
-    console.log(this.receivedData)
+  private createBarChart(selectedItem: string, table: any[]): void {
     let years: number[];
-    let emissionsAluminium: number[]
-    let  emissionsSteel: number[] 
-     let emissionsOther: number[] 
+    let emissionsAluminium: number[];
+    let emissionsSteel: number[];
+    let emissionsOther: number[];
 
     if (selectedItem == 'Drive 1') {
-       years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-       emissionsAluminium = [3200, 2800, 3900, 4100, 3700, 4300, 3800, 3400];
-       emissionsSteel  = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
-       emissionsOther = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
+      years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
+      emissionsAluminium = [3200, 2800, 3900, 4100, 3700, 4300, 3800, 3400];
+      emissionsSteel = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
+      emissionsOther = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
+    } else {
+      years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
+      emissionsAluminium = [7000, 5000, 2000, 4100, 3700, 4300, 3800, 3400];
+      emissionsSteel = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
+      emissionsOther = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
     }
-    else {
-       years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-       emissionsAluminium = [7000, 5000, 2000, 4100, 3700, 4300, 3800, 3400];
-       emissionsSteel = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
-       emissionsOther = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
-    }
-
 
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
-/* 
+
+    let reducedSteel: number[] = [];
+    let reducedAluminium: number[] = [];
+    let reducedOther: number[] = [];
+
+
+    for (let i = 0; i <= table.length - 1; i++) {
+      
+      const lastRow = table[i];
+      if (lastRow.material == 'Steel') {
+        const year = lastRow.year;
+        const percent = lastRow.percent;
+        let i = years.findIndex(y => y === year);
+        console.log(i);
+        if (reducedSteel.length > 0) {
+        reducedSteel = reducedSteel.map((value, index) => {
+          if (index >= i) {
+            return value - (value * percent / 100);
+          } else {
+            return value;
+          }
+        
+        });
+
+      } else { 
+  
+        reducedSteel = emissionsSteel.map((value, index) => {
+          if (index >= i) {
+            return value - (value * percent / 100);
+          } else {
+            return value;
+          }
+        });
+
+      }
+    }
+    else if (lastRow.material == 'Other') {
+
+        const year = lastRow.year;
+        const percent = lastRow.percent;
+        let i = years.findIndex(y => y === year);
+        console.log(i);
+        reducedOther = emissionsOther.map((value, index) => {
+          if (index >= i) {
+            return value - (value * percent / 100);
+          } else {
+            return value;
+          }
+        });
+        console.log(reducedOther);
+    } else {
+      if (lastRow.material == 'Aluminium') {
+        const year = lastRow.year;
+        const percent = lastRow.percent;
+        let i = years.findIndex(y => y === year);
+        console.log(i);
+        reducedAluminium = emissionsAluminium.map((value, index) => {
+          if (index >= i) {
+            return value - (value * percent / 100);
+          } else {
+            return value;
+          }
+        });
+        console.log(reducedAluminium);
+      }
+    }
+  }
+
+    /* 
     const allToggles: any = {
       Aluminium: this.get_toggles('Aluminium'),
       Steel: this.get_toggles('Steel'),
@@ -127,9 +207,7 @@ export class PlotEmissionsComponent implements OnInit, OnChanges  {
     const isOtherTrue = allToggles['Other'].some(
       (value: boolean) => value
     );
-
  */
-
     const data: DataProp[] = this['data'];
     const selectedData = data.filter(
       (item: { product: string }) => item?.product === this.selectedItem
@@ -168,15 +246,7 @@ export class PlotEmissionsComponent implements OnInit, OnChanges  {
       .attr('height', height + margin.top + margin.bottom + 200)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-    /*  
-   const years = selectedProduct.sales.map((s) => s.year.toString());
-   const x = d3.scaleBand().domain(years).range([0, width]).padding(0.1);
 
-    const y = d3
-      .scaleLinear()
-      .domain([0, 15000])
-      .range([height, 0]);
- */
     const materials = selectedProduct.sales[0].components.map(
       (m) => m.material
     );
@@ -185,6 +255,211 @@ export class PlotEmissionsComponent implements OnInit, OnChanges  {
       .scaleOrdinal<string>()
       .domain(materials)
       .range(this['colorPalette'].slice(0, materials.length));
+
+
+    const dataLineNewSteel: [number, number][] = years.map((year, index) => [
+      year,
+      reducedSteel[index],
+    ]);
+
+    const dataLineNewAluminium: [number, number][] = years.map((year, index) => [
+      year,
+      reducedAluminium[index],
+    ]);
+
+    const dataLineNewOther: [number, number][] = years.map((year, index) => [
+      year,
+      reducedOther[index],
+    ]);
+
+    function createLineGenerator(dataLine: [number, number][]): any {
+      return d3.line()(<any>dataLine);
+    }
+
+
+    const maxEmissions = Math.max(
+      Math.max(...emissionsAluminium),
+      Math.max(...emissionsSteel),
+      Math.max(...emissionsOther)
+    );
+
+    const xScale = d3
+      .scaleBand()
+      .domain(years.map(String))
+      .range([0, width])
+      .padding(0.1);
+
+    const yScale = d3
+      .scaleLinear()
+      .domain([0, maxEmissions])
+      .range([height, 0]);
+
+    const x = d3.scaleLinear().domain([2023, 2030]).range([0, width]);
+    const y = d3.scaleLinear().domain([0, 10000]).range([height, 0]);
+
+    const lineGenerator = d3
+      .line()
+      .x((d) => x(d[0]))
+      .y((d) => y(d[1]));
+
+    const dataLineAluminium: [number, number][] = years.map((year, index) => [
+      year,
+      emissionsAluminium[index],
+    ]);
+    const dataLineSteel: [number, number][] = years.map((year, index) => [
+      year,
+      emissionsSteel[index],
+    ]);
+    const dataLineOther: [number, number][] = years.map((year, index) => [
+      year,
+      emissionsOther[index],
+    ]);
+
+    svg
+      .append('g')
+      .attr('transform', `translate(0, ${yScale(0)})`)
+      .call(d3.axisBottom(xScale))
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', 30)
+      .attr('fill', '#000')
+      .attr('font-weight', 'bold')
+      .attr('text-anchor', 'middle')
+      .style('font-size', 12)
+      .text('Year');
+
+    svg
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', -20)
+      .attr('text-anchor', 'middle')
+      .style('font-family', 'Segoe UI')
+      .style('font-size', 16)
+      .style('font-weight', 'bold')
+      .text('Emissions Over Time ');
+    svg
+      .append('g')
+      .call(d3.axisLeft(yScale))
+      .append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', -margin.left + 20)
+      .attr('x', -height / 2)
+      .attr('dy', '1em')
+      .attr('fill', '#000')
+      .attr('font-weight', 'bold')
+      .style('font-size', 12)
+      .attr('text-anchor', 'middle')
+      .text('Emissions');
+
+    svg
+      .append('path')
+      .datum(dataLineAluminium)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][0])
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '5,5')
+      .attr('d', lineGenerator);
+
+    svg
+      .append('path')
+      .datum(dataLineNewSteel)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][1])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+      svg
+      .append('path')
+      .datum(dataLineNewOther)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][2])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+      svg
+      .append('path')
+      .datum(dataLineNewAluminium)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][0])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+    svg
+      .append('path')
+      .datum(dataLineSteel)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][1])
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '5,5')
+      .attr('d', lineGenerator);
+
+    svg
+      .append('path')
+      .datum(dataLineOther)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][2])
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '5,5')
+
+      .attr('d', lineGenerator);
+
+    this.createLegend(svg, materials, colorScale);
+  }
+
+  private createLegend(
+    svg: d3.Selection<any, unknown, null, undefined>,
+    materials: string[],
+    colorScale: d3.ScaleOrdinal<string, string>
+  ): void {
+    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
+    const width = 450 - margin.left - margin.right;
+    const height = 350 - margin.top - margin.bottom;
+
+    const legend = svg
+      .append('g')
+      .attr(
+        'transform',
+        'translate(' + margin.left + ',' + (height + margin.top - 10) + ')'
+      ); // Hier wurde die y-Koordinate angepasst
+
+    const legendRectSize = 13;
+    const legendSpacing = 2;
+
+    const legendItems = legend
+      .selectAll('.legend-item')
+      .data(materials)
+      .enter()
+      .append('g')
+      .attr('class', 'legend-item')
+      .attr('material', (d) => d)
+      .attr(
+        'transform',
+        (d, i) => 'translate(0,' + i * (legendRectSize + legendSpacing) + ')'
+      );
+
+    legendItems
+      .append('rect')
+      .attr('width', legendRectSize)
+      .attr('height', legendRectSize)
+      .attr('material', (d) => d)
+      .style('fill', (d) => colorScale(d));
+
+    legendItems
+      .append('text')
+      .attr('x', legendRectSize + legendSpacing)
+      .attr('y', legendRectSize - legendSpacing)
+      .text((d) => d)
+      .style('font-family', 'Segoe UI')
+      .style('font-size', '13px');
+  }
+}
+function createDataLine(
+  years: number[],
+  emissionsAluminium: number[]
+): [number, number][] {
+  throw new Error('Function not implemented.');
+}
+
 
     /* // Add x axis
     svg
@@ -246,7 +521,6 @@ export class PlotEmissionsComponent implements OnInit, OnChanges  {
       (item) => item.emission
     ); */
 
- 
     /*     
     const dataLineAluminium: [number, number][] = createDataLine(years, emissionsAluminium);
     const dataLineSteel: [number, number][] = createDataLine(years, emissionsSteel);
@@ -260,260 +534,3 @@ export class PlotEmissionsComponent implements OnInit, OnChanges  {
     const lineGeneratorAluminium = createLineGenerator(dataLineAluminium);
     const lineGeneratorSteel = createLineGenerator(dataLineSteel);
     const lineGeneratorOther = createLineGenerator(dataLineOther);  */
-
-
-
-    const years2 = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-    const emissionsAluminium2 = [3200, 2800, 3900, 4100, 3700, 4300, 3800, 3400];
-    const emissionsSteel2: number[] = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
-    const emissionsOther2: number[] = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
-
-    // Den maximalen Wert aus den drei maximalen Werten finden
-    const maxEmissions = Math.max(
-      Math.max(...emissionsAluminium),
-      Math.max(...emissionsSteel),
-      Math.max(...emissionsOther)
-    );
-
-    const xScale = d3
-      .scaleBand()
-      .domain(years.map(String))
-      .range([0, width])
-      .padding(0.1);
-
-    const yScale = d3
-      .scaleLinear()
-      .domain([0, maxEmissions])
-      .range([height, 0]);
-
-    const x = d3.scaleLinear().domain([2023, 2030]).range([0, width]);
-    const y = d3.scaleLinear().domain([0, 10000]).range([height, 0]);
-
-    const lineGenerator = d3
-      .line()
-      .x((d) => x(d[0]))
-      .y((d) => y(d[1]));
-
-    const dataLineAluminium: [number, number][] = years.map((year, index) => [
-      year,
-      emissionsAluminium[index],
-    ]);
-    const dataLineSteel: [number, number][] = years.map((year, index) => [
-      year,
-      emissionsSteel[index],
-    ]);
-    const dataLineOther: [number, number][] = years.map((year, index) => [
-      year,
-      emissionsOther[index],
-    ]);
-
-    svg
-      .append('g')
-      .attr('transform', `translate(0, ${yScale(0)})`)
-      .call(d3.axisBottom(xScale))
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', 30)
-      .attr('fill', '#000')
-      .attr('font-weight', 'bold')
-      .attr('text-anchor', 'middle')
-      .style('font-size', 12)
-      .text('Year');
-
-      svg
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', -20)
-      .attr('text-anchor', 'middle')
-      .style('font-family', 'Segoe UI')
-      .style('font-size', 16)
-      .style('font-weight', 'bold')
-      .text('Emissions Over Time ');
-    svg
-      .append('g')
-      .call(d3.axisLeft(yScale))
-      .append('text')
-      .attr('transform', 'rotate(-90)')
-      .attr('y', -margin.left + 20)
-      .attr('x', -height / 2)
-      .attr('dy', '1em')
-      .attr('fill', '#000')
-      .attr('font-weight', 'bold')
-      .style('font-size', 12)
-      .attr('text-anchor', 'middle')
-      .text('Emissions');
-
-    svg
-      .append('path')
-      .datum(dataLineAluminium)
-      .attr('fill', 'none')
-      .attr('stroke', this['colorPalette'][0])
-      .attr('stroke-width', 2)
-      .attr('d', lineGenerator);
-
-    svg
-      .append('path')
-      .datum(dataLineSteel)
-      .attr('fill', 'none')
-      .attr('stroke', this['colorPalette'][1])
-      .attr('stroke-width', 2)
-      .attr('d', lineGenerator);
-
-    svg
-      .append('path')
-      .datum(dataLineOther)
-      .attr('fill', 'none')
-      .attr('stroke', this['colorPalette'][2])
-      .attr('stroke-width', 2)
-      .attr('d', lineGenerator);
-/* 
-      if (isAluminiumTrue) {
-        const trueCountAluminium = allToggles['Aluminium'].filter((value: boolean) => value).length;
-        const newEmissionsAluminium = emissionsAluminium.map((num) => num - (500*trueCountAluminium));
-        const newdataLineAluminiumNew: [number, number][] = years.map((year, index) => [
-          year,
-          newEmissionsAluminium[index],
-        ]);
-
-        svg
-        .append('path')
-        .datum(newdataLineAluminiumNew)
-        .attr('fill', 'none')
-        .attr('stroke', this['colorPalette'][0])
-        .attr('stroke-width', 2)
-        .attr('stroke-dasharray', '5,5')
-        .attr('d', lineGenerator);
-      }
-
-      if (isSteelTrue) {
-        const trueCountSteel = allToggles['Steel'].filter((value: boolean) => value).length;
-        const newEmissionsSteel = emissionsSteel.map((num) => num - (500*trueCountSteel));
-        const newDataLineSteel: [number, number][] = years.map((year, index) => [
-          year,
-          newEmissionsSteel[index],
-        ]);
-
-        svg
-        .append('path')
-        .datum(newDataLineSteel)
-        .attr('fill', 'none')
-        .attr('stroke', this['colorPalette'][1])
-        .attr('stroke-width', 2)
-        .attr('stroke-dasharray', '5,5')
-        .attr('d', lineGenerator);
-      }
-  
-    if (isOtherTrue) {
-          const trueCountOther = allToggles['Other'].filter((value: boolean) => value).length;
-          const newEmissionsOther = emissionsOther.map((num) => num - (500*trueCountOther));
-          const newdataLineOther: [number, number][] = years.map((year, index) => [
-            year,
-            newEmissionsOther[index],
-          ]);
-
-          svg
-          .append('path')
-          .datum(newdataLineOther)
-          .attr('fill', 'none')
-          .attr('stroke', this['colorPalette'][2])
-          .attr('stroke-width', 2)
-          .attr('stroke-dasharray', '5,5')
-          .attr('d', lineGenerator);
-    }
- */
-    this.createLegend(svg, materials, colorScale);
-  }
-
-  /*   svg
-    .append('path')
-    .datum(dataLineAluminium)
-    .attr('fill', 'none')
-    .attr('stroke', 'red') // Farbe der Linie
-    .attr('stroke-width', 2) // Breite der Linie
-    .attr('d', lineGeneratorAluminium); // Pfaddefinition für die Linie
-
-
-
-    svg
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', height + 30)
-      .attr('text-anchor', 'middle')
-      .style('font-family', 'Segoe UI')
-      .style('font-size', 12)
-      .style('font-weight', 'bold')
-      .text('Year');
-
-    // Y label
-    svg
-      .append('text')
-      .attr('text-anchor', 'middle')
-      .attr('transform', 'translate(-40,' + height / 2.5 + ')rotate(-90)')
-      .attr('y', -10)
-      .style('font-family', 'Segoe UI')
-      .style('margin-right', '90')
-      .style('font-size', 12)
-      .style('font-weight', 'bold')
-      .text('Emissions');
-
-    svg
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', -20)
-      .attr('text-anchor', 'middle')
-      .style('font-family', 'Segoe UI')
-      .style('font-size', 16)
-      .style('font-weight', 'bold')
-      .text('Emissions Over Time'); */
-
-  /*   this.createLegend(svg, materials, colorScale); */
-
-  private createLegend(
-    svg: d3.Selection<any, unknown, null, undefined>,
-    materials: string[],
-    colorScale: d3.ScaleOrdinal<string, string>
-  ): void {
-
-    
-    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
-    const width = 450 - margin.left - margin.right;
-    const height = 350 - margin.top - margin.bottom;
-
-    const legend = svg
-      .append('g')
-      .attr(
-        'transform',
-        'translate(' + margin.left + ',' + (height + margin.top - 10) + ')'
-      ); // Hier wurde die y-Koordinate angepasst
-
-    const legendRectSize = 13;
-    const legendSpacing = 2;
-
-    const legendItems = legend
-      .selectAll('.legend-item')
-      .data(materials)
-      .enter()
-      .append('g')
-      .attr('class', 'legend-item')
-      .attr('material', (d) => d)
-      .attr(
-        'transform',
-        (d, i) => 'translate(0,' + i * (legendRectSize + legendSpacing) + ')'
-      );
-
-    legendItems
-      .append('rect')
-      .attr('width', legendRectSize)
-      .attr('height', legendRectSize)
-      .attr('material', (d) => d)
-      .style('fill', (d) => colorScale(d));
-
-    legendItems
-      .append('text')
-      .attr('x', legendRectSize + legendSpacing)
-      .attr('y', legendRectSize - legendSpacing)
-      .text((d) => d)
-      .style('font-family', 'Segoe UI')
-      .style('font-size', '13px');
-  }
-}
