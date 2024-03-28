@@ -9,6 +9,7 @@ import { DataProp } from '../dataProp';
 import { SelectedValuesService  } from '../measures.service';
 import { DataServiceReduction } from '../cart.service';
 import { privateDecrypt } from 'crypto';
+import { MaterialRelatedMeasure } from '../material-related-measure';
 
 
 @Component({
@@ -22,7 +23,7 @@ import { privateDecrypt } from 'crypto';
 })
 
 export class PlotEmissionsComponent implements OnInit, OnChanges  {
-  @Input() receivedData: string | undefined;
+  @Input() receivedData: MaterialRelatedMeasure[] | undefined;
 
   [x: string]: any;
   selectedItem: string = 'default';
@@ -70,7 +71,9 @@ export class PlotEmissionsComponent implements OnInit, OnChanges  {
     // Überprüfen, ob sich die receivedData-Eigenschaft geändert hat
     if (changes['receivedData'] && !changes['receivedData'].firstChange) {
       this.handleNewInput();
+      console.log('xxx')
     }
+    console.log('yyy')
   }
 
   
@@ -86,6 +89,7 @@ export class PlotEmissionsComponent implements OnInit, OnChanges  {
 
   private createBarChart(selectedItem: string): void {
 
+    console.log(this.receivedData)
     let years: number[];
     let emissionsAluminium: number[]
     let  emissionsSteel: number[] 

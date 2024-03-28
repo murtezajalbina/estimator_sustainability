@@ -47,7 +47,7 @@ export class TableMaterialsComponent implements OnInit {
   }
   sendData(table: MaterialRelatedMeasure[]) {
     this.dataEmitter.emit(table);
-   
+    console.log(typeof table)
   }
 
   addRowToTable() {

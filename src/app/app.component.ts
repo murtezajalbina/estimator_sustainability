@@ -26,10 +26,6 @@ import { MaterialRelatedMeasure } from './material-related-measure';
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  template: `
-  <app-table-materials (dataEmitter)="receiveData($event)"></app-table-materials>
-  <app-plot-emissions [receivedData]="dataToPass"></app-plot-emissions>
-`
 
 })
 
