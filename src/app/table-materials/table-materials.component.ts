@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { SelectedValuesService } from '../measures.service';
+import { SelectedValuesService, TableUpdateService } from '../measures.service';
 import { NgModel } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { MaterialRelatedMeasure } from '../material-related-measure';
@@ -19,7 +19,6 @@ import { EventEmitter, Output } from '@angular/core';
 })
 
 export class TableMaterialsComponent implements OnInit {
-  @Output() dataEmitter = new EventEmitter<MaterialRelatedMeasure[]>();
  
   
   table: MaterialRelatedMeasure[] = [];
@@ -32,7 +31,12 @@ export class TableMaterialsComponent implements OnInit {
     (_, index) => (index + 1) * 10
   );
 
-  constructor(private selectedValuesService: SelectedValuesService) {}
+  constructor(
+    private selectedValuesService: SelectedValuesService,
+    private tableUpdateService: TableUpdateService,
+     // Hier fügen Sie den TableUpdateService hinzu
+  ) {}
+  
 
   ngOnInit() {
     this.currentRow = { material: '', measure: '', year: '', percent: '' };
@@ -45,30 +49,20 @@ export class TableMaterialsComponent implements OnInit {
     } else {
     }
   }
-  sendData(table: MaterialRelatedMeasure[]) {
-    this.dataEmitter.emit(table);
-    console.log('Tabelle: ', table)
-  }
 
   addRowToTable() {
     if (this.isCurrentRowValid()) {
       const newMaterialRelatedMeasure: MaterialRelatedMeasure = {
         material: this.currentRow.material,
         measure: this.currentRow.measure,
-        year: this.currentRow.year,
-        percent: this.currentRow.percent,
+        year: +this.currentRow.year, // Casting to number using unary plus operator
+        percent: +this.currentRow.percent, // Casting to number using unary plus operator
       };
       this.table.push(newMaterialRelatedMeasure);
-      
-
-      
-      this.sendData(this.table)
-      console.log('Aktualisierte Tabelle:', this.table);
-      
-    } else {
-      console.log('Bitte alle Optionen auswählen.');
-    }
+      this.tableUpdateService.emitRowAdded(this.table);
+    } 
   }
+  
 
   isCurrentRowValid(): boolean {
     if (

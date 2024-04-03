@@ -25,13 +25,16 @@
   <div class="plot-container mb-4 col-12">
     <div class="row">
       <div class="col">
-        <app-plot-emissions [receivedData]="dataToPass"></app-plot-emissions>
+        <div class="white_box">
+          <app-plot-single-product></app-plot-single-product>
+        </div>
+      </div>
+      
+      <div class="col">
+        <app-plot-emissions />
       </div>
       <div class="col">
         <app-plot-costs />
-      </div>
-      <div class="col">
-        <app-plot-roi />
       </div>
     </div>
   </div>
@@ -39,7 +42,7 @@
   <div class="col-12">
     <div class="px-3">
       <div class="white_box_table mt-4">
-        <app-table-materials (dataEmitter)="receiveData($event)"></app-table-materials>
+        <app-table-materials ></app-table-materials>
       </div>
     </div>
   </div>

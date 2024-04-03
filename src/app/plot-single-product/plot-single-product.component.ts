@@ -1,10 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-
-} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import {
   DataServiceEmissions,
@@ -17,13 +11,13 @@ import { DataServiceReduction } from '../cart.service';
 import { MaterialRelatedMeasure } from '../material-related-measure';
 
 @Component({
-  selector: 'app-plot-emissions',
+  selector: 'app-plot-single-product',
   standalone: true,
   imports: [],
-  templateUrl: './plot-emissions.component.html',
-  styleUrls: ['../app.component.css'],
+  templateUrl: './plot-single-product.component.html',
+  styleUrl: './plot-single-product.component.css',
 })
-export class PlotEmissionsComponent implements OnInit {
+export class PlotSingleProductComponent implements OnInit {
   [x: string]: any;
   selectedItem: string = 'default';
   emissionAluminium: any = [];
@@ -76,14 +70,14 @@ export class PlotEmissionsComponent implements OnInit {
 
     if (selectedItem == 'Drive 1') {
       years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-      emissionsAluminium = [3200, 2800, 3900, 4100, 3700, 4300, 3800, 3400];
-      emissionsSteel = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
-      emissionsOther = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
+      emissionsAluminium = [200, 200, 200, 200, 200, 200, 200, 200];
+      emissionsSteel = [400, 400, 400, 400, 400, 400, 400, 400];
+      emissionsOther = [150, 150, 150, 150, 150, 150, 150, 150];
     } else {
       years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-      emissionsAluminium = [7000, 5000, 2000, 4100, 3700, 4300, 3800, 3400];
-      emissionsSteel = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
-      emissionsOther = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
+      emissionsAluminium = [400, 400, 400, 400, 400, 400, 400, 400];
+      emissionsSteel = [700, 700, 700, 700, 700, 700, 700, 700];
+      emissionsOther = [800, 800, 800, 800, 800, 800, 800, 800];
     }
 
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
@@ -94,7 +88,6 @@ export class PlotEmissionsComponent implements OnInit {
 
     for (let i = 0; i <= table.length - 1; i++) {
       const lastRow = table[i];
-    
 
       if (lastRow.material == 'Steel') {
         const year = lastRow.year;
@@ -117,7 +110,6 @@ export class PlotEmissionsComponent implements OnInit {
             }
           });
         }
-
       } else if (lastRow.material == 'Other') {
         const year = lastRow.year;
         const percent = lastRow.percent;
@@ -165,24 +157,6 @@ export class PlotEmissionsComponent implements OnInit {
       }
     }
 
-    /* 
-    const allToggles: any = {
-      Aluminium: this.get_toggles('Aluminium'),
-      Steel: this.get_toggles('Steel'),
-      Other: this.get_toggles('Other'),
-    }; 
-
-    const isAluminiumTrue = allToggles['Aluminium'].some(
-      (value: boolean) => value
-    );
-
-    const isSteelTrue = allToggles['Steel'].some(
-      (value: boolean) => value
-    );
-    const isOtherTrue = allToggles['Other'].some(
-      (value: boolean) => value
-    );
- */
     const data: DataProp[] = this['data'];
     const selectedData = data.filter(
       (item: { product: string }) => item?.product === this.selectedItem
@@ -245,8 +219,6 @@ export class PlotEmissionsComponent implements OnInit {
       reducedOther[index],
     ]);
 
-
-
     const maxEmissions = Math.max(
       Math.max(...emissionsAluminium),
       Math.max(...emissionsSteel),
@@ -261,31 +233,33 @@ export class PlotEmissionsComponent implements OnInit {
 
     const yScale = d3
       .scaleLinear()
-      .domain([0, maxEmissions])
+      .domain([0, maxEmissions+100])
       .range([height, 0]);
 
     const x = d3.scaleLinear().domain([2023, 2030]).range([0, width]);
     const y = d3.scaleLinear().domain([0, 10000]).range([height, 0]);
 
-   const lineGenerator = d3
-  .line()
-  .x((d) => x(d[0]))
-  .y((d) => yScale(d[1])); // Hier yScale verwenden
-
+    const lineGenerator = d3
+      .line()
+      .x((d) => x(d[0]))
+      .y((d) => yScale(d[1])); // Hier yScale verwenden
 
     const dataLineAluminium: [number, number][] = years.map((year, index) => [
       year,
       emissionsAluminium[index],
     ]);
-    
+    console.log(dataLineAluminium);
     const dataLineSteel: [number, number][] = years.map((year, index) => [
       year,
       emissionsSteel[index],
     ]);
+    console.log(dataLineSteel);
+
     const dataLineOther: [number, number][] = years.map((year, index) => [
       year,
       emissionsOther[index],
     ]);
+    console.log(dataLineOther);
 
     svg
       .append('g')
@@ -308,7 +282,7 @@ export class PlotEmissionsComponent implements OnInit {
       .style('font-family', 'Segoe UI')
       .style('font-size', 16)
       .style('font-weight', 'bold')
-      .text('Emissions Over Time by Sales Volume');
+      .text('Emissions Over Time');
     svg
       .append('g')
       .call(d3.axisLeft(yScale))
@@ -323,45 +297,38 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('text-anchor', 'middle')
       .text('Emissions');
 
-      console.log(dataLineAluminium)
+    svg
+      .append('path')
+      .datum(dataLineNewSteel)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][1])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+    svg
+      .append('path')
+      .datum(dataLineNewOther)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][2])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+    svg
+      .append('path')
+      .datum(dataLineNewAluminium)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][0])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
     svg
       .append('path')
       .datum(dataLineAluminium)
       .attr('fill', 'none')
       .attr('stroke', this['colorPalette'][0])
       .attr('stroke-width', 2)
-      .attr('stroke-dasharray', '3,5')
+      .attr('stroke-dasharray', '5,5')
       .attr('d', lineGenerator);
-
-    if (dataLineNewSteel.length > 0) {
-      svg
-        .append('path')
-        .datum(dataLineNewSteel)
-        .attr('fill', 'none')
-        .attr('stroke', this['colorPalette'][1])
-        .attr('stroke-width', 2)
-        .attr('d', lineGenerator);
-    }
-
-    if (dataLineNewOther.length > 0) {
-      svg
-        .append('path')
-        .datum(dataLineNewOther)
-        .attr('fill', 'none')
-        .attr('stroke', this['colorPalette'][2])
-        .attr('stroke-width', 2)
-        .attr('d', lineGenerator);
-    }
-
-    if (dataLineNewAluminium.length > 0) {
-      svg
-        .append('path')
-        .datum(dataLineNewAluminium)
-        .attr('fill', 'none')
-        .attr('stroke', this['colorPalette'][0])
-        .attr('stroke-width', 2)
-        .attr('d', lineGenerator);
-    }
 
     svg
       .append('path')
@@ -369,7 +336,7 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('fill', 'none')
       .attr('stroke', this['colorPalette'][1])
       .attr('stroke-width', 2)
-      .attr('stroke-dasharray', '3,5')
+      .attr('stroke-dasharray', '5,5')
       .attr('d', lineGenerator);
 
     svg
@@ -378,7 +345,7 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('fill', 'none')
       .attr('stroke', this['colorPalette'][2])
       .attr('stroke-width', 2)
-      .attr('stroke-dasharray', '3,5')
+      .attr('stroke-dasharray', '5,5')
 
       .attr('d', lineGenerator);
 
@@ -432,4 +399,3 @@ export class PlotEmissionsComponent implements OnInit {
       .style('font-size', '13px');
   }
 }
-
