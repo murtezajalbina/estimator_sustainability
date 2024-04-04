@@ -2,33 +2,42 @@
   <div class="header mb-2">
     <app-header></app-header>
   </div>
+
   <div class="info-container" style="margin-bottom: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
     Here, we consider the emissions of your products and materials. 
+
   </div>
 
   <div class="select-product">
-    <app-product-choice/>
+    <app-product-choice />
   </div>
 
   <div class="plot-container mb-4 col-12">
     <div class="row">
       <div class="col">
-        <app-plot-emissions/>
+        <div class="white_box">
+          <app-plot-single-product></app-plot-single-product>
+        </div>
+      </div>
+      
+      <div class="col">
+        <app-plot-emissions />
       </div>
       <div class="col">
-        <app-plot-costs/>
+        <app-plot-costs />
       </div>
-      <div class="col">
-        <app-plot-roi/>
-      </div>  
-    </div>  
+    </div>
   </div>
 
   <div class="col-12">
     <div class="px-3">
       <div class="white_box_table mt-4">
-        <app-table-materials />
+
+        <app-table-materials ></app-table-materials>
       </div>
     </div>
   </div>
-</div>
+    </div>
+
+
+

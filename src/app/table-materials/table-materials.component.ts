@@ -1,49 +1,84 @@
 import { CommonModule } from '@angular/common';
-import { Component, AfterViewInit } from '@angular/core';
-import { ToggleService } from '../measures.service';
+import { Component, OnInit } from '@angular/core';
+import { SelectedValuesService, TableUpdateService } from '../measures.service';
+import { NgModel } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { MaterialRelatedMeasure } from '../material-related-measure';
+import { EventEmitter, Output } from '@angular/core';
 
-
-
-
-declare var $: any;
 
 @Component({
   selector: 'app-table-materials',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './table-materials.component.html',
+
   styleUrls: ['../app.component.css']
+
 })
 
-
-export class TableMaterialsComponent implements AfterViewInit {
+export class TableMaterialsComponent implements OnInit {
+ 
   
-  constructor(private toggleService: ToggleService) {}
+  table: MaterialRelatedMeasure[] = [];
+  currentRow: any;
+  nextRowIndex = 1;
 
-  headers = ['Reduce Waste', 'Process Efficiency', 'Switch technology', 'Green Compounds'];
-  rows = [
-    { name: 'Aluminium', toggles: [false, false, false, false], iconname: "bi bi-layers", color: "silver"},
-    { name: 'Steel', toggles: [false, false, false, false], iconname: "bi bi-record2-fill", color: "purple" },
-    { name: 'Other', toggles: [false, false, false, false], iconname: "bi bi-archive", color: "red" }
-  ];
+  years: number[] = Array.from({ length: 8 }, (_, index) => 2023 + index);
+  percents: number[] = Array.from(
+    { length: 10 },
+    (_, index) => (index + 1) * 10
+  );
 
-// Methoden anpassen
-toggleButton(rowName: string, colName: string) {
-  const toggles = this.toggleService.getToggles(rowName);
-  const colIndex = this.headers.findIndex(header => header === colName);
-  toggles[colIndex] = !toggles[colIndex];
-  this.toggleService.setToggle(rowName, toggles);
-/*   console.log('setting:', rowName, toggles)
- */}
+  constructor(
+    private selectedValuesService: SelectedValuesService,
+    private tableUpdateService: TableUpdateService,
+     // Hier fügen Sie den TableUpdateService hinzu
+  ) {}
 
-getToggleButtonValue(rowName: string, colName: string): boolean {
-  const toggles = this.toggleService.getToggles(rowName);
-  const colIndex = this.headers.findIndex(header => header === colName);
-  return toggles[colIndex];
-}
-  ngAfterViewInit() {
-    // Aktiviere die Bootstrap Toggle-Funktion nachdem die Ansicht initialisiert wurde
-    return;
-    /* $('[data-toggle="toggle"]').bootstrapToggle(); */
+
+  ngOnInit() {
+    this.currentRow = { material: '', measure: '', year: '', percent: '' };
   }
+
+  addRow() {
+    if (this.isCurrentRowValid()) {
+      this.addRowToTable();
+      this.currentRow = { material: '', measure: '', year: '', percent: '' };
+    } else {
+    }
+
+  }
+
+  addRowToTable() {
+    if (this.isCurrentRowValid()) {
+      const newMaterialRelatedMeasure: MaterialRelatedMeasure = {
+        material: this.currentRow.material,
+        measure: this.currentRow.measure,
+        year: +this.currentRow.year, // Casting to number using unary plus operator
+        percent: +this.currentRow.percent, // Casting to number using unary plus operator
+      };
+      this.table.push(newMaterialRelatedMeasure);
+      this.tableUpdateService.emitRowAdded(this.table);
+    } 
+  }
+  
+
+  isCurrentRowValid(): boolean {
+    if (
+      !this.currentRow.material ||
+      !this.currentRow.measure ||
+      !this.currentRow.year ||
+      !this.currentRow.percent
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  saveSelectedValues(selectedValue: any) {
+    this.selectedValuesService.addSelectedValue(selectedValue);
+  }
+  
 }
