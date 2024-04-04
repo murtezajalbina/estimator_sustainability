@@ -323,7 +323,6 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('text-anchor', 'middle')
       .text('Emissions');
 
-      console.log(dataLineAluminium)
     svg
       .append('path')
       .datum(dataLineAluminium)
@@ -385,6 +384,42 @@ export class PlotEmissionsComponent implements OnInit {
     this.createLegend(svg, materials, colorScale);
   }
 
+    private createLegend(svg: any, materials: string[], colorScale: d3.ScaleOrdinal<string, string>): void {
+      const legend = svg.append('g')
+          .attr('class', 'legend')
+          .attr('transform', `translate(0, ${-40})`);
+  
+      const legendItemWidth = 120;
+      const legendItemHeight =17;
+      const legendPadding = 10;
+  
+      legend.selectAll('.legend-item')
+          .data(materials)
+          .enter().append('g')
+          .attr('class', 'legend-item')
+          .attr('transform', (_d: any, i: number) => `translate(${i * legendItemWidth}, 290)`);
+  
+      legend.selectAll('.legend-item')
+          .append('rect')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', legendItemHeight)
+          .attr('height', legendItemHeight)
+          .style('fill', (d: string) => colorScale(d));
+  
+      legend.selectAll('.legend-item')
+          .append('text')
+          .attr('x', legendItemHeight + legendPadding)
+          .attr('y', legendItemHeight / 2)
+          .attr('dy', '0.35em')
+          .text((d: string) => d)
+          .style('fill', '#000')
+          .style('font-size', '12px')
+          .style('font-family', 'Arial');
+  }
+  
+  }
+/* 
   private createLegend(
     svg: d3.Selection<any, unknown, null, undefined>,
     materials: string[],
@@ -398,7 +433,7 @@ export class PlotEmissionsComponent implements OnInit {
       .append('g')
       .attr(
         'transform',
-        'translate(' + margin.left + ',' + (height + margin.top - 10) + ')'
+        'translate(' + margin.left + ',' + (height + margin.top - 20) + ')'
       );
 
     const legendRectSize = 13;
@@ -433,3 +468,4 @@ export class PlotEmissionsComponent implements OnInit {
   }
 }
 
+ */

@@ -162,8 +162,8 @@ selectedItem: string = "default";
       .enter()
       .append("circle")
       .attr("r", 3)
-      .attr("cx", (d: any) => x(d.x) || 0)  // Use x scale to position
-      .attr("cy", (d: any) => y(d.y) || 0)  // Use y scale to position
+      .attr("cx", (d: any) => x(d.x) || 0)  
+      .attr("cy", (d: any) => y(d.y) || 0) 
       .style("fill", this['colorPalette'][1])
       .on("mouseover", (event: any, d: any) => {
         tooltip.transition().duration(200).style("opacity", .9);
@@ -272,19 +272,37 @@ selectedItem: string = "default";
       .style('font-weight', 'bold')
       .text('Total Costs ');
  
-const legendRectSize = 13;
- 
-      svg.append("rect").attr("x", width / 2 - 65).attr("y", height + 45).attr('width', legendRectSize)
-    .attr('height', legendRectSize).style("fill", this['colorPalette'][0])
- 
-      svg.append("rect").attr("x", width / 2 - 65).attr("y", height + 60).attr('width', legendRectSize)
-    .attr('height', legendRectSize).style("fill", this['colorPalette'][3])
- 
-      svg.append("text").attr("x", width / 2 -50 ).attr("y", height + 55).text("Costs").style("font-size", "13px").style('font-family', 'Segoe UI')
-  svg.append("text").attr("x", width / 2 -50).attr("y", height + 70).text("Costs with measures").style("font-size", "13px").style('font-family', 'Segoe UI');
-     
-  }
- 
+      const legendRectSize = 17;
+      const legendSpacing = 60; 
+      
+      svg.append("rect")
+          .attr("x", 30) 
+          .attr("y", height + 45)
+          .attr("width", legendRectSize)
+          .attr("height", legendRectSize)
+          .style("fill", this['colorPalette'][0]);
+      
+      svg.append("text")
+          .attr("x", 30 + legendRectSize + 10) 
+          .attr("y", height + 55)
+          .text("Costs")
+          .style("font-size", "13px")
+          .style("font-family", "Segoe UI");
+      
+      svg.append("rect")
+          .attr("x", 30 + legendRectSize + legendSpacing) 
+          .attr("y", height + 45)
+          .attr("width", legendRectSize)
+          .attr("height", legendRectSize)
+          .style("fill", this['colorPalette'][3]);
+      
+      svg.append("text")
+          .attr("x", 30 + legendRectSize * 2 + legendSpacing + 10)
+          .attr("y", height + 55)
+          .text("Costs with measures")
+          .style("font-size", "13px")
+          .style("font-family", "Segoe UI");
+    }      
  
   private createLinePlot() {
     const data = this['data'];

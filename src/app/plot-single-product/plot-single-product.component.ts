@@ -248,18 +248,15 @@ export class PlotSingleProductComponent implements OnInit {
       year,
       emissionsAluminium[index],
     ]);
-    console.log(dataLineAluminium);
     const dataLineSteel: [number, number][] = years.map((year, index) => [
       year,
       emissionsSteel[index],
     ]);
-    console.log(dataLineSteel);
 
     const dataLineOther: [number, number][] = years.map((year, index) => [
       year,
       emissionsOther[index],
     ]);
-    console.log(dataLineOther);
 
     svg
       .append('g')
@@ -351,51 +348,38 @@ export class PlotSingleProductComponent implements OnInit {
 
     this.createLegend(svg, materials, colorScale);
   }
+  private createLegend(svg: any, materials: string[], colorScale: d3.ScaleOrdinal<string, string>): void {
+    const legend = svg.append('g')
+        .attr('class', 'legend')
+        .attr('transform', `translate(0, ${-40})`);
 
-  private createLegend(
-    svg: d3.Selection<any, unknown, null, undefined>,
-    materials: string[],
-    colorScale: d3.ScaleOrdinal<string, string>
-  ): void {
-    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
-    const width = 450 - margin.left - margin.right;
-    const height = 350 - margin.top - margin.bottom;
+    const legendItemWidth = 120;
+    const legendItemHeight =17;
+    const legendPadding = 10;
 
-    const legend = svg
-      .append('g')
-      .attr(
-        'transform',
-        'translate(' + margin.left + ',' + (height + margin.top - 10) + ')'
-      );
+    legend.selectAll('.legend-item')
+        .data(materials)
+        .enter().append('g')
+        .attr('class', 'legend-item')
+        .attr('transform', (_d: any, i: number) => `translate(${i * legendItemWidth}, 290)`);
 
-    const legendRectSize = 13;
-    const legendSpacing = 2;
+    legend.selectAll('.legend-item')
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', legendItemHeight)
+        .attr('height', legendItemHeight)
+        .style('fill', (d: string) => colorScale(d));
 
-    const legendItems = legend
-      .selectAll('.legend-item')
-      .data(materials)
-      .enter()
-      .append('g')
-      .attr('class', 'legend-item')
-      .attr('material', (d) => d)
-      .attr(
-        'transform',
-        (d, i) => 'translate(0,' + i * (legendRectSize + legendSpacing) + ')'
-      );
+    legend.selectAll('.legend-item')
+        .append('text')
+        .attr('x', legendItemHeight + legendPadding)
+        .attr('y', legendItemHeight / 2)
+        .attr('dy', '0.35em')
+        .text((d: string) => d)
+        .style('fill', '#000')
+        .style('font-size', '12px')
+        .style('font-family', 'Arial');
+}
 
-    legendItems
-      .append('rect')
-      .attr('width', legendRectSize)
-      .attr('height', legendRectSize)
-      .attr('material', (d) => d)
-      .style('fill', (d) => colorScale(d));
-
-    legendItems
-      .append('text')
-      .attr('x', legendRectSize + legendSpacing)
-      .attr('y', legendRectSize - legendSpacing)
-      .text((d) => d)
-      .style('font-family', 'Segoe UI')
-      .style('font-size', '13px');
-  }
 }
