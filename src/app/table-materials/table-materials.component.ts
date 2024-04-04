@@ -12,10 +12,9 @@ import { EventEmitter, Output } from '@angular/core';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './table-materials.component.html',
-  styleUrls: ['../app.component.css'],
-  template: `
-    <button (click)="sendData()">Send Data</button>
-  `
+
+  styleUrls: ['../app.component.css']
+
 })
 
 export class TableMaterialsComponent implements OnInit {
@@ -36,7 +35,7 @@ export class TableMaterialsComponent implements OnInit {
     private tableUpdateService: TableUpdateService,
      // Hier fügen Sie den TableUpdateService hinzu
   ) {}
-  
+
 
   ngOnInit() {
     this.currentRow = { material: '', measure: '', year: '', percent: '' };
@@ -48,6 +47,7 @@ export class TableMaterialsComponent implements OnInit {
       this.currentRow = { material: '', measure: '', year: '', percent: '' };
     } else {
     }
+
   }
 
   addRowToTable() {

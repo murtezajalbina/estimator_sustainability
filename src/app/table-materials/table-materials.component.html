@@ -1,4 +1,6 @@
+
 <table>
+
   <thead>
     <tr>
       <th>Material</th>
@@ -43,6 +45,7 @@
     </ng-container>
     <tr >
       <td>
+
         <select [(ngModel)]='currentRow.material' (change)="saveSelectedValues(currentRow)" required>
           <option value="" disabled>Select Material</option>
           <option value="Aluminium">Aluminium</option>
@@ -74,7 +77,9 @@
     <tr>
       <td colspan="4" style="text-align: center;">
         <button (click)="addRow()" [disabled]="!isCurrentRowValid()">+</button>
+
       </td>
     </tr>
   </tbody>
 </table>
+ 

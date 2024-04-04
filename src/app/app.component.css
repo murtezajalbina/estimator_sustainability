@@ -6,7 +6,7 @@
   margin-left: 1.5rem;
   width: 500px;
 }
-
+ 
 .info-container {
   position: relative;
   display: inline-block;
@@ -24,9 +24,16 @@
   padding-top: 20px;
 }
 
+
 .white_box {
   width: 450px;
   height: 350px;
+
+ 
+.white_box {
+  width: 450px;
+  height: 380px;
+
   background-color: white;
   border-radius: 10px; /*round design*/
   overflow: hidden;
@@ -35,10 +42,18 @@
   margin-top: 2rem;
 }
 
+
 .white_box_table {
   margin-left: 2rem;
 }
 
+
+=======
+ 
+.white_box_table {
+  margin-left: 2rem;
+}
+ 
 
 table {
   width: 1460px;
@@ -47,8 +62,13 @@ table {
   font-family: "Segoe UI";
   border-radius: 10px;
 
+
 }
 
+
+
+}
+ 
 
 th:first-child,
 td:first-child {
@@ -90,7 +110,6 @@ td {
 tbody tr:hover {
   background-color: #e6f7ff;
 }
-
 
 .chart-container {
   width: 100%;
