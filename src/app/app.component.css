@@ -23,7 +23,8 @@
   cursor: pointer;
   padding-top: 20px;
 }
- 
+
+
 .white_box {
   width: 450px;
   height: 380px;
@@ -34,21 +35,31 @@
   margin-left: 2rem;
   margin-top: 2rem;
 }
+
+
+.white_box_table {
+  margin-left: 2rem;
+}
+
+
+=======
  
 .white_box_table {
   margin-left: 2rem;
 }
  
- 
+
 table {
   width: 1460px;
   border-collapse: collapse;
   overflow: hidden;
   font-family: "Segoe UI";
   border-radius: 10px;
+
+
 }
- 
- 
+
+
 th:first-child,
 td:first-child {
   border-left: none; /* Remove left border for first column */
@@ -89,8 +100,7 @@ td {
 tbody tr:hover {
   background-color: #e6f7ff;
 }
- 
- 
+
 .chart-container {
   width: 100%;
   height: 100%;

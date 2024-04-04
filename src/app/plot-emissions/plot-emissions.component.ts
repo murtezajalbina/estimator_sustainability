@@ -58,6 +58,7 @@ export class PlotEmissionsComponent implements OnInit {
 
     this.reductionService.getData().subscribe((reduction) => {
       this['reduction'] = reduction;
+
     });
 
     this.tableUpdateService.rowAdded.subscribe(
@@ -67,6 +68,7 @@ export class PlotEmissionsComponent implements OnInit {
       }
     );
   }
+
 
   private createBarChart(selectedItem: string, table: any[]): void {
     let years: number[];
@@ -91,6 +93,7 @@ export class PlotEmissionsComponent implements OnInit {
     let reducedSteel: number[] = [];
     let reducedAluminium: number[] = [];
     let reducedOther: number[] = [];
+
 
     for (let i = 0; i <= table.length - 1; i++) {
       const lastRow = table[i];
@@ -191,6 +194,7 @@ export class PlotEmissionsComponent implements OnInit {
 
     const calculateEmission = (component: any, volume: number) => {
       return component.emission * component.quantity * volume;
+
     };
 
     const calculateMaxEmissionPerYear = (sale: any): number => {
@@ -264,6 +268,7 @@ export class PlotEmissionsComponent implements OnInit {
       .domain([0, maxEmissions])
       .range([height, 0]);
 
+
     const x = d3.scaleLinear().domain([2023, 2030]).range([0, width]);
     const y = d3.scaleLinear().domain([0, 10000]).range([height, 0]);
 
@@ -271,6 +276,7 @@ export class PlotEmissionsComponent implements OnInit {
   .line()
   .x((d) => x(d[0]))
   .y((d) => yScale(d[1])); // Hier yScale verwenden
+
 
 
     const dataLineAluminium: [number, number][] = years.map((year, index) => [
