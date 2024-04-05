@@ -19,6 +19,12 @@ import { EventEmitter, Output } from '@angular/core';
 })
 
 export class TableMaterialsComponent implements OnInit {
+  deleteRow(index: number) {
+    this.table.splice(index, 1);
+    this.tableUpdateService.emitRowAdded(this.table); // Service aufrufen, um die Aktualisierung zu signalisieren
+  }
+  
+
  
   
   table: MaterialRelatedMeasure[] = [];
