@@ -45,13 +45,13 @@ export class TableMaterialsComponent implements OnInit {
 
 
   ngOnInit() {
-    this.currentRow = { material: '', measure: '', year: '', percent: '' };
+    this.currentRow = { material: '', measure: '', year: '', percent: '', editable: '' };
   }
 
   addRow() {
     if (this.isCurrentRowValid()) {
       this.addRowToTable();
-      this.currentRow = { material: '', measure: '', year: '', percent: '' };
+      this.currentRow = { material: '', measure: '', year: '', percent: '', editable: '' };
     } else {
     }
 
@@ -64,6 +64,7 @@ export class TableMaterialsComponent implements OnInit {
         measure: this.currentRow.measure,
         year: +this.currentRow.year, // Casting to number using unary plus operator
         percent: +this.currentRow.percent, // Casting to number using unary plus operator
+        editable: false
       };
       this.table.push(newMaterialRelatedMeasure);
       this.tableUpdateService.emitRowAdded(this.table);

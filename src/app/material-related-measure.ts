@@ -2,5 +2,6 @@ export interface MaterialRelatedMeasure {
     material: string,
     measure: string,
     year: number,
-    percent: number
+    percent: number,
+    editable: boolean
 }

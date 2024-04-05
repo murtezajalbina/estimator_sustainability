@@ -279,7 +279,7 @@ export class PlotSingleProductComponent implements OnInit {
       .style('font-family', 'Segoe UI')
       .style('font-size', 16)
       .style('font-weight', 'bold')
-      .text('Emissions Over Time');
+      .text('Emissions Over Time of Product Materials');
     svg
       .append('g')
       .call(d3.axisLeft(yScale))

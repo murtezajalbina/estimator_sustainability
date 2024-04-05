@@ -42,7 +42,7 @@
 }
 
 
-=======
+
  
 .white_box_table {
   margin-left: 2rem;
@@ -128,3 +128,10 @@ tbody tr:hover {
   transform: translateY(-50%);
   white-space: nowrap;
 }
+
+.disabled-dropdown {
+  background-color: #f4f4f4; /* Neue Hintergrundfarbe für deaktivierte Dropdowns */
+  color: #080000; /* Textfarbe */
+  cursor: not-allowed; /* Zeigt an, dass das Element nicht anklickbar ist */
+}
+

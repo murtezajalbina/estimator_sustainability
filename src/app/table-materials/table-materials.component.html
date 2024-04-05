@@ -15,7 +15,8 @@
     <ng-container *ngFor="let row of table; let i = index">
       <tr>
         <td>
-          <select [(ngModel)]="row.material" (change)="saveSelectedValues(row)" required>
+          <select [(ngModel)]="row.material" [disabled]="!row.editable" (change)="saveSelectedValues(row)" required [style.pointer-events]="row.editable ? 'auto' : 'none'" class="disabled-dropdown">
+  
             <option value="" disabled>Select Material</option>
             <option value="Aluminium">Aluminium</option>
             <option value="Steel">Steel</option>
@@ -23,7 +24,9 @@
           </select>
         </td>
         <td>
-          <select [(ngModel)]="row.measure" (change)="saveSelectedValues(row)" required>
+          <select [(ngModel)]="row.measure" [disabled]="!row.editable" (change)="saveSelectedValues(row)" required [style.pointer-events]="row.editable ? 'auto' : 'none'" class="disabled-dropdown">
+            <!-- Optionen hier einfügen -->
+        
             <option value="" disabled>Select Measure</option>
             <option value="Switch technology">Switch technology</option>
             <option value="Reduce waste">Reduce waste</option>
@@ -31,14 +34,16 @@
           </select>
         </td>
         <td>
-          <select [(ngModel)]="row.year" (change)="saveSelectedValues(row)" required>
-            <option value="" disabled>Select Year</option>
+          <select [(ngModel)]="row.year" [disabled]="!row.editable" (change)="saveSelectedValues(row)" required [style.pointer-events]="row.editable ? 'auto' : 'none'" class="disabled-dropdown">>
+            <!-- Optionen hier einfügen -->
+                    <option value="" disabled>Select Year</option>
             <option *ngFor="let year of years" [value]="year">{{ year }}</option>
           </select>
         </td>
         <td>
-          <select [(ngModel)]="row.percent" (change)="saveSelectedValues(row)" required>
-            <option value="" disabled>Select Percent</option>
+          <select [(ngModel)]="row.percent" [disabled]="!row.editable" (change)="saveSelectedValues(row)" required [style.pointer-events]="row.editable ? 'auto' : 'none'" class="disabled-dropdown">>
+            <!-- Optionen hier einfügen -->
+                    <option value="" disabled>Select Percent</option>
             <option *ngFor="let percent of percents" [value]="percent">{{ percent }}%</option>
           </select>
         </td>
