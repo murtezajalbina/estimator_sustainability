@@ -43,7 +43,6 @@ selectedItem: string = "default";
       this['costs'] = cost;
     });
 
-    /* this.selectedItemService.selectedItem$.subscribe(selectedItem => {
 
  
      this.selectedItemService.selectedItem$.subscribe(selectedItem => {
@@ -51,37 +50,25 @@ selectedItem: string = "default";
         this.createLinePlot();
     });
 
-    this.toggleService.toggleChanged.subscribe(() => {
-      this.createLinePlot();
-    }); 
- /* 
+  
+ 
 
 
     combineLatest([
       this.selectedItemService.selectedItem$,
-      this.toggleService.toggleChanged
-    ]).subscribe(([selectedItem, _]) => {
+     
+    ]).subscribe(([selectedItem]) => {
       this.selectedItem = selectedItem;
       this.createLinePlot();
     });
 
   }
 
-  get_toggles(rowName: string){
-    return this.toggleService.getToggles(rowName);
-  }
-*/
-  }
-  private calculateEmmisionCost(cost_per_messure: any,allToggles:any) {
+
+  
+  private calculateEmmisionCost(cost_per_messure: any) {
     let totalExtraCostResult = 0;
-    for (let i = 0; i < cost_per_messure.length; i++) {
-      // Accumulate costs for each material type at the same index
-      for (const material in allToggles) {
-          if (allToggles[material][i]) {
-              totalExtraCostResult += cost_per_messure[i].costs;
-          }
-      }
-  }
+   
     return totalExtraCostResult;
   }
  
@@ -322,8 +309,8 @@ selectedItem: string = "default";
       const selectedData = this.totalMaterialCost.filter((item: { productName: string; }) => item?.productName === this.selectedItem);
     this.createChart(selectedData);
 
-    /* const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme,allToggles);
-    this.createChart(selectedData, emmsionCost); */
+    const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme);
+    this.createChart(selectedData, emmsionCost); 
 }
  
   }
