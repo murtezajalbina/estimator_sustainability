@@ -1,261 +1,148 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
-import { DataServiceColors, DataServiceCosts, DataServiceEmissions, SelectedItemService } from '../cart.service';
+import {
+  DataServiceColors,
+  DataServiceCosts,
+  DataServiceEmissions,
+  SelectedItemService,
+} from '../cart.service';
 
-import { SelectedValuesService } from '../measures.service';
-import { combineLatest} from 'rxjs';
- 
+import { SelectedValuesService, TableUpdateService } from '../measures.service';
+import { combineLatest } from 'rxjs';
+import { MaterialRelatedMeasure } from '../material-related-measure';
 
 @Component({
   selector: 'app-plot-costs',
   standalone: true,
   templateUrl: './plot-costs.component.html',
-  styleUrls: ['../app.component.css']
+  styleUrls: ['../app.component.css'],
 })
- 
 export class PlotCostsComponent implements OnInit {
- 
-  [x: string]: any;
-selectedItem: string = "default";
-  private totalMaterialCost: any
- 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
- 
+  selectedItem: string = 'default';
+
   constructor(
-    private dataService: DataServiceEmissions,
-    private dataColors: DataServiceColors,
-    private dataCost: DataServiceCosts,
     private selectedItemService: SelectedItemService,
-    private toggleService: SelectedValuesService,
- 
-  ) { }
- 
+    private tableUpdateService: TableUpdateService
+  ) {}
+
   ngOnInit(): void {
-    this.dataService.getData().subscribe((data) => {
-      this['data'] = data;
-    });
- 
-    this.dataColors.getData().subscribe((color) => {
-      this['colorPalette'] = color;
-    });
- 
-    this.dataCost.getData().subscribe((cost) => {
-      this['costs'] = cost;
-    });
+    let table: MaterialRelatedMeasure[] = [];
 
-
- 
-     this.selectedItemService.selectedItem$.subscribe(selectedItem => {
-        this.selectedItem = selectedItem;
-        this.createLinePlot();
-    });
-
-  
- 
-
-
-    combineLatest([
-      this.selectedItemService.selectedItem$,
-     
-    ]).subscribe(([selectedItem]) => {
+    this.selectedItemService.selectedItem$.subscribe((selectedItem) => {
       this.selectedItem = selectedItem;
-      this.createLinePlot();
+      this.createChart(selectedItem, table);
     });
 
+    this.tableUpdateService.rowAdded.subscribe(
+      (tableData: MaterialRelatedMeasure[]) => {
+        table = tableData;
+        this.createChart(this.selectedItem, table);
+      }
+    );
   }
 
+  private createChart(
+    selectedItem: string,
+    table: MaterialRelatedMeasure[]
+  ): void {
+    let years: number[];
+    let dummycosts: number[];
+    let dummyinvestment: number[];
+    let newcosts: any = [];
 
-  
-  private calculateEmmisionCost(cost_per_messure: any) {
-    let totalExtraCostResult = 0;
-   
-    return totalExtraCostResult;
-  }
- 
-  private calculateAllMaterialCost(data: any, cost: any) {
-    let resultArray: { productName: any; salesYear: null; totalMaterialCost: number; }[] = [];
- 
-    data.forEach((product: any) => {
-      product.sales.forEach((sales: any) => {
-        let productInfo = {
-          productName: product.product,
-          salesYear: sales.year,
-          totalMaterialCost: 0
-        };
- 
-        sales.components.forEach((components: any) => {
-          let materialCost;
- 
-          if (components.material === "Aluminium") {
-            materialCost = components.quantity * sales.volume * cost.Aluminium;
-          } else if (components.material === "Steel") {
-            materialCost = components.quantity * sales.volume * cost.Steel;
-          } else {
-            materialCost = components.quantity * sales.volume * cost.Other;
-          }
- 
-          productInfo.totalMaterialCost += materialCost;
-        });
- 
-        resultArray.push(productInfo);
+    if (selectedItem == 'Drive 1') {
+      years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
+      dummycosts = [16000, 13500, 9900, 12500, 12400, 12200, 13200, 12000];
+      dummyinvestment = [15200, 13500, 9900, 12500, 12400, 12200, 13200, 12000];
+    } else {
+      years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
+      dummycosts = [16000, 14000, 11000, 14000, 12400, 12200, 13200, 12000];
+      dummyinvestment = [
+        16000, 14000, 11000, 14000, 12400, 12200, 13200, 12000,
+      ];
+    }
+
+    newcosts = [16000, 13500, 9900, 12500, 12400, 12200, 13200, 12000];
+    for (let i = 0; i <= table.length - 1; i++) {
+      const lastRow = table[i];
+      const year = lastRow.year;
+      const percent = lastRow.percent;
+      let x = years.findIndex((y) => y === year);
+      newcosts = newcosts.map((value: number, index: number) => {
+        if (index === x) {
+          return value + (value * percent) / 100;
+        } else if (index > x) {
+          return value - value / 3;
+        } else {
+          return value;
+        }
       });
-    });
-    return resultArray;
-  }
- 
-  createChart(data: any, additionalCost?: any) {
- 
+    }
+
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
- 
+
+    const costdata: [number, number][] = years.map((year, index) => [
+      year,
+      dummycosts[index],
+    ]);
+
+    const newcostsdata: [number, number][] = years.map((year, index) => [
+      year,
+      newcosts[index],
+    ]);
+
+    const maxcosts =
+      Math.max(Math.max(...dummycosts), Math.max(...newcosts)) + 4000;
+
     const margin = { top: 60, right: 50, bottom: 80, left: 90 };
     const width = 450 - margin.left - margin.right;
     const height = 350 - margin.top - margin.bottom;
- 
- 
+
+    const xScale = d3.scaleLinear().domain([2023, 2030]).range([0, width]);
+
+    const x = d3.scaleLinear().domain([2023, 2030]).range([0, width]);
+
+    const yScale = d3.scaleLinear().domain([0, maxcosts]).range([height, 0]);
+
+    const lineGenerator = d3
+      .line()
+      .x((d) => x(d[0]))
+      .y((d) => yScale(d[1]));
+
+    const area = d3
+      .area<number>()
+      .x((_, i: number) => xScale(years[i]) || 0)
+      .y0((_, i: number) => yScale(dummycosts[i]) || 0)
+      .y1((d: any, i: number) => yScale(newcosts[i]) || 0);
+
+
     const svg = d3
       .select(this.chartContainer.nativeElement)
       .append('svg')
       .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
+      .attr('height', height + margin.top + margin.bottom + 200)
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
- 
-    const x = d3
-      .scalePoint()
-      .domain(data.map((s: any) => s.salesYear))
-      .range([0, width])
-      .padding(0.5)
- 
-    const maxY=data.reduce((acc:any, curr:any) => {
-      return acc.totalMaterialCost > curr.totalMaterialCost ? acc : curr;}, data[0]);
- 
-  const minY =data.reduce((acc:any, curr:any) => {
-    return acc.totalMaterialCost < curr.totalMaterialCost ? acc : curr;
-}, data[0]);
- 
- 
-    const y = d3.scaleLinear()
-      .domain([0, maxY.totalMaterialCost+5000])
-      .range([height, 0]);
- 
+
+    const xAxis = d3
+      .axisBottom(x)
+      .tickValues(years) 
+      .tickFormat(d3.format('d'));
+
     svg
       .append('g')
-      .attr('transform', 'translate(0,' + height + ')')
-      .call(d3.axisBottom(x));
- 
-    svg.append('g').call(d3.axisLeft(y));
- 
-    const dataPoints = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost }));
- 
- 
- 
-    svg.append('g')
-      .selectAll("dot")
-      .data(dataPoints)
-      .enter()
-      .append("circle")
-      .attr("r", 3)
-      .attr("cx", (d: any) => x(d.x) || 0)  
-      .attr("cy", (d: any) => y(d.y) || 0) 
-      .style("fill", this['colorPalette'][1])
-      .on("mouseover", (event: any, d: any) => {
-        tooltip.transition().duration(200).style("opacity", .9);
-        tooltip.html(`Total Cost Material: ${d.y} , year: ${d.x}`)
-          .style("left", (event.pageX) + "px")
-          .style("top", (event.pageY ) + "px");
-      })
-      .on("mouseout", (d: any) => {
-        tooltip.transition().duration(500).style("opacity", 0);
-      });
- 
-    const xScale = d3.scaleLinear().domain(data.map((s: any) => s.salesYear)).range([0, width]);
-    const yScale = d3.scaleLinear().domain([minY.totalMaterialCost-5000, maxY.totalMaterialCost+5000]).range([height, 0]);
- 
- 
-    const tooltip = d3.select(this.chartContainer.nativeElement)
-  .append("div")
-  .attr("class", "tooltip")
-  .style("opacity", 0);
-
- 
- 
- 
- 
-      if(additionalCost !== 0){
-
-      const dataPointsTotal = data.map((d: any) => ({ x: d.salesYear, y: d.totalMaterialCost + additionalCost }));
- 
-     
- 
-
-      svg.append('g')
-      .selectAll("dot")
-      .data(dataPointsTotal)
-      .enter()
-      .append("circle")
-      .attr("r", 3)
-      .attr("cx", (d: any) => x(d.x) || 0)  // Use x scale to position
-      .attr("cy", (d: any) => y(d.y) || 0)  // Use y scale to position
-      .style("fill", this['colorPalette'][2])
-      .on("mouseover", (event: any, d: any) => {
-        tooltip.transition().duration(200).style("opacity", .9);
-        tooltip.html(`Total Cost Material: ${d.y} , year: ${d.x}`)
-          .style("left", (event.pageX) + "px")
-          .style("top", (event.pageY ) + "px");
-      })
-      .on("mouseout", (d: any) => {
-        tooltip.transition().duration(500).style("opacity", 0);
-      });
-
-      const line2 = d3.line()
-      .x((d: any) => x(d.x) || 0)
-      .y((d: any) => y(d.y) || 0)
-      .curve(d3.curveLinear);
-
-    svg.append('path')
-      .datum(dataPointsTotal)
-      .attr('fill', 'none')
-      .attr('stroke', '#000')
-      .attr('stroke-width', 2)
-      .attr('stroke', this['colorPalette'][1])
-      .attr('d', line2);
-      }
-      
-
-
-      const line = d3.line()
-      .x((d: any) => x(d.x) || 0)
-      .y((d: any) => y(d.y) || 0)
-      .curve(d3.curveLinear);
-
-    svg.append('path')
-      .datum(dataPoints)
-      .attr('fill', 'none')
-      .attr('stroke', '#000')
-      .attr('stroke-width', 2)
-      .attr('stroke', this['colorPalette'][0])
-      .attr('d', line);
-
-    svg
+      .attr('transform', `translate(0, ${yScale(0)})`)
+      .call(xAxis)
       .append('text')
       .attr('x', width / 2)
-      .attr('y', height + 30)
+      .attr('y', 30)
       .attr('fill', '#000')
       .attr('font-weight', 'bold')
       .attr('text-anchor', 'middle')
       .style('font-size', 12)
       .text('Year');
- 
-    svg
-      .append('text')
-      .attr('transform', 'translate(-30,' + height / 2.5 + ')rotate(-90)')
-      .attr('y', -20)
-      .attr('fill', '#000')
-         .attr('font-weight', 'bold')
-         .style('font-size', 12)
-         .attr('text-anchor', 'middle')
-      .text('Cost');
- 
+
     svg
       .append('text')
       .attr('x', width / 2)
@@ -264,54 +151,87 @@ selectedItem: string = "default";
       .style('font-family', 'Segoe UI')
       .style('font-size', 16)
       .style('font-weight', 'bold')
+      .text('Cost Development Over Time');
 
-      .text('Total Costs ');
- 
-      const legendRectSize = 17;
-      const legendSpacing = 60; 
+    svg
+      .append('g')
+      .call(d3.axisLeft(yScale))
+      .append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', -margin.left + 30)
+      .attr('x', -height / 2)
+      .attr('dy', '1em')
+      .attr('fill', '#000')
+      .attr('font-weight', 'bold')
+      .style('font-size', 12)
+      .attr('text-anchor', 'middle')
+      .text('Costs');
 
-      
-      svg.append("rect")
-          .attr("x", 30) 
-          .attr("y", height + 45)
-          .attr("width", legendRectSize)
-          .attr("height", legendRectSize)
-          .style("fill", this['colorPalette'][0]);
-      
-      svg.append("text")
-          .attr("x", 30 + legendRectSize + 10) 
-          .attr("y", height + 55)
-          .text("Costs")
-          .style("font-size", "13px")
-          .style("font-family", "Segoe UI");
-      
-      svg.append("rect")
-          .attr("x", 30 + legendRectSize + legendSpacing) 
-          .attr("y", height + 45)
-          .attr("width", legendRectSize)
-          .attr("height", legendRectSize)
-          .style("fill", this['colorPalette'][3]);
-      
-      svg.append("text")
-          .attr("x", 30 + legendRectSize * 2 + legendSpacing + 10)
-          .attr("y", height + 55)
-          .text("Costs with measures")
-          .style("font-size", "13px")
-          .style("font-family", "Segoe UI");
-    }      
- 
-  private createLinePlot() {
-    const data = this['data'];
-    const cost = this['costs'];
+    svg
+      .append('path')
+      .datum(newcostsdata)
+      .attr('fill', 'none')
+      .attr('stroke', 'maroon')
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
 
-    this.totalMaterialCost = this.calculateAllMaterialCost(data, cost[0].Kosten_pro_Material);
-    if(this.selectedItem !== "default"){
-      const selectedData = this.totalMaterialCost.filter((item: { productName: string; }) => item?.productName === this.selectedItem);
-    this.createChart(selectedData);
+    svg
+      .append('path')
+      .datum(costdata)
+      .attr('fill', 'none')
+      .attr('stroke', '#0095FF')
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
 
-    const emmsionCost = this.calculateEmmisionCost(cost[1].Kosten_pro_Maßnahme);
-    this.createChart(selectedData, emmsionCost); 
-}
- 
+    // Fläche zwischen den Linien füllen
+    svg
+      .append('path')
+      .datum(newcosts)
+      .attr('class', 'area')
+      .attr('d', area)
+      .attr('stroke-width', 2)
+      .style('fill', '#F6CECE');
+
+    const legendItems = ['Costs', 'Costs with applied measures'];
+    const legendColors = ['#0095FF', 'maroon'];
+
+    const legend = svg
+      .append('g')
+      .attr('class', 'legend')
+      .attr('transform', `translate(0, ${-40})`);
+
+    const legendItemWidth = 120;
+    const legendItemHeight = 17;
+    const legendPadding = 10;
+
+    const legendGroup = legend
+      .selectAll('.legend-item')
+      .data(legendItems)
+      .enter()
+      .append('g')
+      .attr('class', 'legend-item')
+      .attr(
+        'transform',
+        (_d: any, i: number) =>
+          `translate(${i * (legendItemWidth + 2 * legendPadding)}, 290)` // Legen Sie den horizontalen Abstand fest
+      );
+
+    legendGroup
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', legendItemHeight)
+      .attr('height', legendItemHeight)
+      .style('fill', (_d, i) => legendColors[i]);
+
+    legendGroup
+      .append('text')
+      .attr('x', legendItemHeight + legendPadding)
+      .attr('y', legendItemHeight / 2)
+      .attr('dy', '0.35em')
+      .text((d) => d)
+      .style('fill', '#000')
+      .style('font-size', '12px')
+      .style('font-family', 'Arial');
   }
 }

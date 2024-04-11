@@ -258,18 +258,23 @@ export class PlotSingleProductComponent implements OnInit {
       emissionsOther[index],
     ]);
 
-    svg
-      .append('g')
-      .attr('transform', `translate(0, ${yScale(0)})`)
-      .call(d3.axisBottom(xScale))
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', 30)
-      .attr('fill', '#000')
-      .attr('font-weight', 'bold')
-      .attr('text-anchor', 'middle')
-      .style('font-size', 12)
-      .text('Year');
+    const xAxis = d3
+    .axisBottom(x)
+    .tickValues(years) // Manuell festgelegte Ticks für die x-Achse
+    .tickFormat(d3.format('d'));
+
+  svg
+    .append('g')
+    .attr('transform', `translate(0, ${yScale(0)})`)
+    .call(xAxis)
+    .append('text')
+    .attr('x', width / 2)
+    .attr('y', 30)
+    .attr('fill', '#000')
+    .attr('font-weight', 'bold')
+    .attr('text-anchor', 'middle')
+    .style('font-size', 12)
+    .text('Year');
 
     svg
       .append('text')
@@ -285,7 +290,7 @@ export class PlotSingleProductComponent implements OnInit {
       .call(d3.axisLeft(yScale))
       .append('text')
       .attr('transform', 'rotate(-90)')
-      .attr('y', -margin.left + 20)
+      .attr('y', -margin.left + 35)
       .attr('x', -height / 2)
       .attr('dy', '1em')
       .attr('fill', '#000')

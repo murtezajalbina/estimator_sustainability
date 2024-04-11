@@ -1,10 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-
-} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import * as d3 from 'd3';
 import {
   DataServiceEmissions,
@@ -58,7 +52,6 @@ export class PlotEmissionsComponent implements OnInit {
 
     this.reductionService.getData().subscribe((reduction) => {
       this['reduction'] = reduction;
-
     });
 
     this.tableUpdateService.rowAdded.subscribe(
@@ -68,7 +61,6 @@ export class PlotEmissionsComponent implements OnInit {
       }
     );
   }
-
 
   private createBarChart(selectedItem: string, table: any[]): void {
     let years: number[];
@@ -94,10 +86,8 @@ export class PlotEmissionsComponent implements OnInit {
     let reducedAluminium: number[] = [];
     let reducedOther: number[] = [];
 
-
     for (let i = 0; i <= table.length - 1; i++) {
       const lastRow = table[i];
-    
 
       if (lastRow.material == 'Steel') {
         const year = lastRow.year;
@@ -120,7 +110,6 @@ export class PlotEmissionsComponent implements OnInit {
             }
           });
         }
-
       } else if (lastRow.material == 'Other') {
         const year = lastRow.year;
         const percent = lastRow.percent;
@@ -194,7 +183,6 @@ export class PlotEmissionsComponent implements OnInit {
 
     const calculateEmission = (component: any, volume: number) => {
       return component.emission * component.quantity * volume;
-
     };
 
     const calculateMaxEmissionPerYear = (sale: any): number => {
@@ -249,8 +237,6 @@ export class PlotEmissionsComponent implements OnInit {
       reducedOther[index],
     ]);
 
-
-
     const maxEmissions = Math.max(
       Math.max(...emissionsAluminium),
       Math.max(...emissionsSteel),
@@ -268,22 +254,19 @@ export class PlotEmissionsComponent implements OnInit {
       .domain([0, maxEmissions])
       .range([height, 0]);
 
-
     const x = d3.scaleLinear().domain([2023, 2030]).range([0, width]);
     const y = d3.scaleLinear().domain([0, 10000]).range([height, 0]);
 
-   const lineGenerator = d3
-  .line()
-  .x((d) => x(d[0]))
-  .y((d) => yScale(d[1])); // Hier yScale verwenden
-
-
+    const lineGenerator = d3
+      .line()
+      .x((d) => x(d[0]))
+      .y((d) => yScale(d[1]));
 
     const dataLineAluminium: [number, number][] = years.map((year, index) => [
       year,
       emissionsAluminium[index],
     ]);
-    
+
     const dataLineSteel: [number, number][] = years.map((year, index) => [
       year,
       emissionsSteel[index],
@@ -293,18 +276,23 @@ export class PlotEmissionsComponent implements OnInit {
       emissionsOther[index],
     ]);
 
-    svg
-      .append('g')
-      .attr('transform', `translate(0, ${yScale(0)})`)
-      .call(d3.axisBottom(xScale))
-      .append('text')
-      .attr('x', width / 2)
-      .attr('y', 30)
-      .attr('fill', '#000')
-      .attr('font-weight', 'bold')
-      .attr('text-anchor', 'middle')
-      .style('font-size', 12)
-      .text('Year');
+    const xAxis = d3
+    .axisBottom(x)
+    .tickValues(years) // Manuell festgelegte Ticks für die x-Achse
+    .tickFormat(d3.format('d'));
+
+  svg
+    .append('g')
+    .attr('transform', `translate(0, ${yScale(0)})`)
+    .call(xAxis)
+    .append('text')
+    .attr('x', width / 2)
+    .attr('y', 30)
+    .attr('fill', '#000')
+    .attr('font-weight', 'bold')
+    .attr('text-anchor', 'middle')
+    .style('font-size', 12)
+    .text('Year');
 
     svg
       .append('text')
@@ -320,7 +308,7 @@ export class PlotEmissionsComponent implements OnInit {
       .call(d3.axisLeft(yScale))
       .append('text')
       .attr('transform', 'rotate(-90)')
-      .attr('y', -margin.left + 20)
+      .attr('y', -margin.left + 30)
       .attr('x', -height / 2)
       .attr('dy', '1em')
       .attr('fill', '#000')
@@ -390,41 +378,52 @@ export class PlotEmissionsComponent implements OnInit {
     this.createLegend(svg, materials, colorScale);
   }
 
-    private createLegend(svg: any, materials: string[], colorScale: d3.ScaleOrdinal<string, string>): void {
-      const legend = svg.append('g')
-          .attr('class', 'legend')
-          .attr('transform', `translate(0, ${-40})`);
-  
-      const legendItemWidth = 120;
-      const legendItemHeight =17;
-      const legendPadding = 10;
-  
-      legend.selectAll('.legend-item')
-          .data(materials)
-          .enter().append('g')
-          .attr('class', 'legend-item')
-          .attr('transform', (_d: any, i: number) => `translate(${i * legendItemWidth}, 290)`);
-  
-      legend.selectAll('.legend-item')
-          .append('rect')
-          .attr('x', 0)
-          .attr('y', 0)
-          .attr('width', legendItemHeight)
-          .attr('height', legendItemHeight)
-          .style('fill', (d: string) => colorScale(d));
-  
-      legend.selectAll('.legend-item')
-          .append('text')
-          .attr('x', legendItemHeight + legendPadding)
-          .attr('y', legendItemHeight / 2)
-          .attr('dy', '0.35em')
-          .text((d: string) => d)
-          .style('fill', '#000')
-          .style('font-size', '12px')
-          .style('font-family', 'Arial');
+  private createLegend(
+    svg: any,
+    materials: string[],
+    colorScale: d3.ScaleOrdinal<string, string>
+  ): void {
+    const legend = svg
+      .append('g')
+      .attr('class', 'legend')
+      .attr('transform', `translate(0, ${-40})`);
+
+    const legendItemWidth = 120;
+    const legendItemHeight = 17;
+    const legendPadding = 10;
+
+    legend
+      .selectAll('.legend-item')
+      .data(materials)
+      .enter()
+      .append('g')
+      .attr('class', 'legend-item')
+      .attr(
+        'transform',
+        (_d: any, i: number) => `translate(${i * legendItemWidth}, 290)`
+      );
+
+    legend
+      .selectAll('.legend-item')
+      .append('rect')
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('width', legendItemHeight)
+      .attr('height', legendItemHeight)
+      .style('fill', (d: string) => colorScale(d));
+
+    legend
+      .selectAll('.legend-item')
+      .append('text')
+      .attr('x', legendItemHeight + legendPadding)
+      .attr('y', legendItemHeight / 2)
+      .attr('dy', '0.35em')
+      .text((d: string) => d)
+      .style('fill', '#000')
+      .style('font-size', '12px')
+      .style('font-family', 'Arial');
   }
-  
-  }
+}
 /* 
   private createLegend(
     svg: d3.Selection<any, unknown, null, undefined>,
