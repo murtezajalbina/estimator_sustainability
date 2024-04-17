@@ -10,6 +10,9 @@ import { ProductChoiceComponent } from './product-choice/product-choice.componen
 import { TableMaterialsComponent } from './table-materials/table-materials.component';
 import { MaterialRelatedMeasure } from './material-related-measure';
 import { PlotSingleProductComponent } from './plot-single-product/plot-single-product.component'
+import { arrayBuffer } from 'stream/consumers';
+import * as XLSX from 'xlsx';
+import { forEach } from 'lodash';
 
 @Component({
   selector: 'app-root',
@@ -34,9 +37,26 @@ import { PlotSingleProductComponent } from './plot-single-product/plot-single-pr
 
 export class AppComponent {
   title = 'dashboard';
+  excelData:any;
   dataToPass: MaterialRelatedMeasure[] | undefined;
 
   receiveData(data: MaterialRelatedMeasure[] ) {
     this.dataToPass = data;
   }
+
+  onFileChange(event:any){
+    const file= event.target.files[0];
+    const fileReader = new FileReader(); 
+
+    fileReader.readAsArrayBuffer(file);
+
+    fileReader.onload =(e:any) =>{
+      const workbook = XLSX.read(fileReader.result,{type:'binary'})
+      const sheetNames = workbook.SheetNames;
+
+      this.excelData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
+      console.log(this.excelData)
+    }
+  }
+
 }
