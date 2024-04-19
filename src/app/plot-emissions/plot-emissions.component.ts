@@ -9,6 +9,7 @@ import { DataProp } from '../dataProp';
 import { TableUpdateService } from '../measures.service';
 import { DataServiceReduction } from '../cart.service';
 import { MaterialRelatedMeasure } from '../material-related-measure';
+import { TransformationService } from '../transformation.service';
 
 @Component({
   selector: 'app-plot-emissions',
@@ -23,6 +24,12 @@ export class PlotEmissionsComponent implements OnInit {
   emissionAluminium: any = [];
   emissionSteel: any = [];
   emissionOther: any = [];
+  years: number[] = [];
+  emissionsAluminium: number[] = [];
+  emissionsCompoundparts: number[] = [];
+  emissionsMetals: number[] = [];
+  emissionsOther: number[] = [];
+  emissionsSteel: number[] = [];
 
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
 
@@ -31,16 +38,23 @@ export class PlotEmissionsComponent implements OnInit {
     private dataColors: DataServiceColors,
     private selectedItemService: SelectedItemService,
     private reductionService: DataServiceReduction,
-    private tableUpdateService: TableUpdateService
+    private tableUpdateService: TableUpdateService,
+    private driveData: TransformationService
   ) {}
 
   ngOnInit(): void {
+   
+    this.years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
     this.dataService.getData().subscribe((data) => {
       this['data'] = data;
     });
 
     this.dataColors.getData().subscribe((color) => {
       this['colorPalette'] = color;
+    });
+
+    this.driveData.getMaterials().subscribe((data) => {
+      this['materials'] = data;
     });
 
     let table: MaterialRelatedMeasure[] = [];
@@ -63,79 +77,90 @@ export class PlotEmissionsComponent implements OnInit {
   }
 
   private createBarChart(selectedItem: string, table: any[]): void {
-    let years: number[];
-    let emissionsAluminium: number[];
-    let emissionsSteel: number[];
-    let emissionsOther: number[];
-
-    if (selectedItem == 'Drive 1') {
-      years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-      emissionsAluminium = [3200, 2800, 3900, 4100, 3700, 4300, 3800, 3400];
-      emissionsSteel = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
-      emissionsOther = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
-    } else {
-      years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-      emissionsAluminium = [7000, 5000, 2000, 4100, 3700, 4300, 3800, 3400];
-      emissionsSteel = [5200, 4800, 4400, 5100, 4900, 4700, 5500, 5000];
-      emissionsOther = [3000, 3700, 3500, 3300, 3800, 3200, 3900, 3600];
-    }
-
     d3.select(this.chartContainer.nativeElement).select('svg').remove();
 
-    let reducedSteel: number[] = [];
-    let reducedAluminium: number[] = [];
-    let reducedOther: number[] = [];
+    this.driveData
+      .getEmissions(this.selectedItem, 'Aluminium')
+      .subscribe((data) => {
+        this.emissionsAluminium = data;
+      });
 
-    for (let i = 0; i <= table.length - 1; i++) {
-      const lastRow = table[i];
-
-      if (lastRow.material == 'Steel') {
-        const year = lastRow.year;
-        const percent = lastRow.percent;
-        let i = years.findIndex((y) => y === year);
-        if (reducedSteel.length > 0) {
-          reducedSteel = reducedSteel.map((value, index) => {
-            if (index >= i) {
-              return value - (value * percent) / 100;
-            } else {
-              return value;
-            }
-          });
-        } else {
-          reducedSteel = emissionsSteel.map((value, index) => {
-            if (index >= i) {
-              return value - (value * percent) / 100;
-            } else {
-              return value;
-            }
-          });
-        }
-      } else if (lastRow.material == 'Other') {
-        const year = lastRow.year;
-        const percent = lastRow.percent;
-        let i = years.findIndex((y) => y === year);
-        if (reducedOther.length > 0) {
-          reducedOther = reducedOther.map((value, index) => {
-            if (index >= i) {
-              return value - (value * percent) / 100;
-            } else {
-              return value;
-            }
-          });
-        } else {
-          reducedOther = emissionsOther.map((value, index) => {
-            if (index >= i) {
-              return value - (value * percent) / 100;
-            } else {
-              return value;
-            }
-          });
-        }
-      } else {
-        if (lastRow.material == 'Aluminium') {
+    this.driveData
+      .getEmissionsSalesVolume(this.selectedItem, 'Comp. parts')
+      .subscribe((data) => {
+        this.emissionsCompoundparts = data;
+      });
+    this.driveData
+      .getEmissionsSalesVolume(this.selectedItem, 'Other metals')
+      .subscribe((data) => {
+        this.emissionsMetals = data;
+      });
+    this.driveData
+      .getEmissionsSalesVolume(this.selectedItem, 'Others')
+      .subscribe((data) => {
+        this.emissionsOther = data;
+      });
+    this.driveData
+      .getEmissionsSalesVolume(this.selectedItem, 'Steel')
+      .subscribe((data) => {
+        this.emissionsSteel = data;
+      });
+   
+      let reducedSteel: number[] = [];
+      let reducedAluminium: number[] = [];
+      let reducedOther: number[] = [];
+      let reducedMetal: number[] = [];
+      let reducedCompoundParts: number[] = [];
+      
+      for (let i = 0; i <= table.length - 1; i++) {
+        const lastRow = table[i];
+      
+        if (lastRow.material == 'Steel') {
           const year = lastRow.year;
           const percent = lastRow.percent;
-          let i = years.findIndex((y) => y === year);
+          let i = this.years.findIndex((y) => y === year);
+          if (reducedSteel.length > 0) {
+            reducedSteel = reducedSteel.map((value, index) => {
+              if (index >= i) {
+                return value - (value * percent) / 100;
+              } else {
+                return value;
+              }
+            });
+          } else {
+            reducedSteel = this.emissionsSteel.map((value, index) => {
+              if (index >= i) {
+                return value - (value * percent) / 100;
+              } else {
+                return value;
+              }
+            });
+          }
+        } else if (lastRow.material == 'Other') {
+          const year = lastRow.year;
+          const percent = lastRow.percent;
+          let i = this.years.findIndex((y) => y === year);
+          if (reducedOther.length > 0) {
+            reducedOther = reducedOther.map((value, index) => {
+              if (index >= i) {
+                return value - (value * percent) / 100;
+              } else {
+                return value;
+              }
+            });
+          } else {
+            reducedOther = this.emissionsOther.map((value, index) => {
+              if (index >= i) {
+                return value - (value * percent) / 100;
+              } else {
+                return value;
+              }
+            });
+          }
+        } else if (lastRow.material == 'Aluminium') {
+          const year = lastRow.year;
+          const percent = lastRow.percent;
+          let i = this.years.findIndex((y) => y === year);
           if (reducedAluminium.length > 0) {
             reducedAluminium = reducedAluminium.map((value, index) => {
               if (index >= i) {
@@ -145,7 +170,49 @@ export class PlotEmissionsComponent implements OnInit {
               }
             });
           } else {
-            reducedAluminium = emissionsAluminium.map((value, index) => {
+            reducedAluminium = this.emissionsAluminium.map((value, index) => {
+              if (index >= i) {
+                return value - (value * percent) / 100;
+              } else {
+                return value;
+              }
+            });
+          }
+        } else if (lastRow.material == 'Other metals') {
+          const year = lastRow.year;
+          const percent = lastRow.percent;
+          let i = this.years.findIndex((y) => y === year);
+          if (reducedMetal.length > 0) {
+            reducedMetal = reducedMetal.map((value, index) => {
+              if (index >= i) {
+                return value - (value * percent) / 100;
+              } else {
+                return value;
+              }
+            });
+          } else {
+            reducedMetal = this.emissionsMetals.map((value, index) => {
+              if (index >= i) {
+                return value - (value * percent) / 100;
+              } else {
+                return value;
+              }
+            });
+          }
+        } else if (lastRow.material == 'Comp. parts') {
+          const year = lastRow.year;
+          const percent = lastRow.percent;
+          let i = this.years.findIndex((y) => y === year);
+          if (reducedCompoundParts.length > 0) {
+            reducedCompoundParts = reducedCompoundParts.map((value, index) => {
+              if (index >= i) {
+                return value - (value * percent) / 100;
+              } else {
+                return value;
+              }
+            });
+          } else {
+            reducedCompoundParts = this.emissionsCompoundparts.map((value, index) => {
               if (index >= i) {
                 return value - (value * percent) / 100;
               } else {
@@ -155,26 +222,8 @@ export class PlotEmissionsComponent implements OnInit {
           }
         }
       }
-    }
+      
 
-    /* 
-    const allToggles: any = {
-      Aluminium: this.get_toggles('Aluminium'),
-      Steel: this.get_toggles('Steel'),
-      Other: this.get_toggles('Other'),
-    }; 
-
-    const isAluminiumTrue = allToggles['Aluminium'].some(
-      (value: boolean) => value
-    );
-
-    const isSteelTrue = allToggles['Steel'].some(
-      (value: boolean) => value
-    );
-    const isOtherTrue = allToggles['Other'].some(
-      (value: boolean) => value
-    );
- */
     const data: DataProp[] = this['data'];
     const selectedData = data.filter(
       (item: { product: string }) => item?.product === this.selectedItem
@@ -214,44 +263,51 @@ export class PlotEmissionsComponent implements OnInit {
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    const materials = selectedProduct.sales[0].components.map(
-      (m) => m.material
-    );
-
     const colorScale: d3.ScaleOrdinal<string, string> = d3
       .scaleOrdinal<string>()
-      .domain(materials)
-      .range(this['colorPalette'].slice(0, materials.length));
+      .domain(this['materials'])
+      .range(this['colorPalette'].slice(0, this['materials'].length));
 
-    const dataLineNewSteel: [number, number][] = years.map((year, index) => [
-      year,
-      reducedSteel[index],
-    ]);
+    const dataLineNewSteel: [number, number][] = this.years.map(
+      (year, index) => [year, reducedSteel[index]]
+    );
 
-    const dataLineNewAluminium: [number, number][] = years.map(
+    const dataLineNewAluminium: [number, number][] = this.years.map(
       (year, index) => [year, reducedAluminium[index]]
     );
 
-    const dataLineNewOther: [number, number][] = years.map((year, index) => [
-      year,
-      reducedOther[index],
-    ]);
+    const dataLineNewOther: [number, number][] = this.years.map(
+      (year, index) => [year, reducedOther[index]]
+    );
+
+    
+    const dataLineNewMetals: [number, number][] = this.years.map(
+      (year, index) => [year, reducedMetal[index]]
+    );
+
+    const dataLineNewCompoundparts: [number, number][] = this.years.map(
+      (year, index) => [year, reducedCompoundParts[index]]
+    );
+
+
 
     const maxEmissions = Math.max(
-      Math.max(...emissionsAluminium),
-      Math.max(...emissionsSteel),
-      Math.max(...emissionsOther)
+      Math.max(...this.emissionsAluminium),
+      Math.max(...this.emissionsSteel),
+      Math.max(...this.emissionsOther),
+      Math.max(...this.emissionsCompoundparts),
+      Math.max(...this.emissionsMetals)
     );
 
     const xScale = d3
       .scaleBand()
-      .domain(years.map(String))
+      .domain(this.years.map(String))
       .range([0, width])
       .padding(0.1);
 
     const yScale = d3
       .scaleLinear()
-      .domain([0, maxEmissions])
+      .domain([0, maxEmissions + 1])
       .range([height, 0]);
 
     const x = d3.scaleLinear().domain([2023, 2030]).range([0, width]);
@@ -260,39 +316,49 @@ export class PlotEmissionsComponent implements OnInit {
     const lineGenerator = d3
       .line()
       .x((d) => x(d[0]))
-      .y((d) => yScale(d[1]));
+      .y((d) => yScale(d[1])); // Hier yScale verwenden
 
-    const dataLineAluminium: [number, number][] = years.map((year, index) => [
+    const dataLineAluminium: [number, number][] = this.years.map(
+      (year, index) => [year, this.emissionsAluminium[index]]
+    );
+    const dataLineSteel: [number, number][] = this.years.map((year, index) => [
       year,
-      emissionsAluminium[index],
+      this.emissionsSteel[index],
     ]);
 
-    const dataLineSteel: [number, number][] = years.map((year, index) => [
+    const dataLineOther: [number, number][] = this.years.map((year, index) => [
       year,
-      emissionsSteel[index],
+      this.emissionsOther[index],
     ]);
-    const dataLineOther: [number, number][] = years.map((year, index) => [
+    
+    const dataLineMetals: [number, number][] = this.years.map((year, index) => [
       year,
-      emissionsOther[index],
+      this.emissionsMetals[index],
+    ]);
+
+    
+    const dataLineCompoundparts: [number, number][] = this.years.map((year, index) => [
+      year,
+      this.emissionsCompoundparts[index],
     ]);
 
     const xAxis = d3
-    .axisBottom(x)
-    .tickValues(years) // Manuell festgelegte Ticks für die x-Achse
-    .tickFormat(d3.format('d'));
+      .axisBottom(x)
+      .tickValues(this.years) // Manuell festgelegte Ticks für die x-Achse
+      .tickFormat(d3.format('d'));
 
-  svg
-    .append('g')
-    .attr('transform', `translate(0, ${yScale(0)})`)
-    .call(xAxis)
-    .append('text')
-    .attr('x', width / 2)
-    .attr('y', 30)
-    .attr('fill', '#000')
-    .attr('font-weight', 'bold')
-    .attr('text-anchor', 'middle')
-    .style('font-size', 12)
-    .text('Year');
+    svg
+      .append('g')
+      .attr('transform', `translate(0, ${yScale(0)})`)
+      .call(xAxis)
+      .append('text')
+      .attr('x', width / 2)
+      .attr('y', 30)
+      .attr('fill', '#000')
+      .attr('font-weight', 'bold')
+      .attr('text-anchor', 'middle')
+      .style('font-size', 12)
+      .text('Year');
 
     svg
       .append('text')
@@ -302,13 +368,13 @@ export class PlotEmissionsComponent implements OnInit {
       .style('font-family', 'Segoe UI')
       .style('font-size', 16)
       .style('font-weight', 'bold')
-      .text('Emissions Over Time by Sales Volume');
+      .text('Emissions Over Time of Product Materials');
     svg
       .append('g')
       .call(d3.axisLeft(yScale))
       .append('text')
       .attr('transform', 'rotate(-90)')
-      .attr('y', -margin.left + 30)
+      .attr('y', -margin.left + 15)
       .attr('x', -height / 2)
       .attr('dy', '1em')
       .attr('fill', '#000')
@@ -319,42 +385,70 @@ export class PlotEmissionsComponent implements OnInit {
 
     svg
       .append('path')
+      .datum(dataLineNewSteel)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][1])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+    svg
+      .append('path')
+      .datum(dataLineNewOther)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][2])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+      svg
+      .append('path')
+      .datum(dataLineNewMetals)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][1])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+      svg
+      .append('path')
+      .datum(dataLineNewCompoundparts)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][1])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+    svg
+      .append('path')
+      .datum(dataLineNewAluminium)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][0])
+      .attr('stroke-width', 2)
+      .attr('d', lineGenerator);
+
+    svg
+      .append('path')
       .datum(dataLineAluminium)
       .attr('fill', 'none')
       .attr('stroke', this['colorPalette'][0])
       .attr('stroke-width', 2)
-      .attr('stroke-dasharray', '3,5')
+      .attr('stroke-dasharray', '5,5')
       .attr('d', lineGenerator);
 
-    if (dataLineNewSteel.length > 0) {
       svg
-        .append('path')
-        .datum(dataLineNewSteel)
-        .attr('fill', 'none')
-        .attr('stroke', this['colorPalette'][1])
-        .attr('stroke-width', 2)
-        .attr('d', lineGenerator);
-    }
+      .append('path')
+      .datum(dataLineMetals)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][0])
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '5,5')
+      .attr('d', lineGenerator);
 
-    if (dataLineNewOther.length > 0) {
       svg
-        .append('path')
-        .datum(dataLineNewOther)
-        .attr('fill', 'none')
-        .attr('stroke', this['colorPalette'][2])
-        .attr('stroke-width', 2)
-        .attr('d', lineGenerator);
-    }
+      .append('path')
+      .datum(dataLineCompoundparts)
+      .attr('fill', 'none')
+      .attr('stroke', this['colorPalette'][0])
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '5,5')
+      .attr('d', lineGenerator);
 
-    if (dataLineNewAluminium.length > 0) {
-      svg
-        .append('path')
-        .datum(dataLineNewAluminium)
-        .attr('fill', 'none')
-        .attr('stroke', this['colorPalette'][0])
-        .attr('stroke-width', 2)
-        .attr('d', lineGenerator);
-    }
 
     svg
       .append('path')
@@ -362,7 +456,7 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('fill', 'none')
       .attr('stroke', this['colorPalette'][1])
       .attr('stroke-width', 2)
-      .attr('stroke-dasharray', '3,5')
+      .attr('stroke-dasharray', '5,5')
       .attr('d', lineGenerator);
 
     svg
@@ -371,13 +465,12 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('fill', 'none')
       .attr('stroke', this['colorPalette'][2])
       .attr('stroke-width', 2)
-      .attr('stroke-dasharray', '3,5')
+      .attr('stroke-dasharray', '5,5')
 
       .attr('d', lineGenerator);
 
-    this.createLegend(svg, materials, colorScale);
+    this.createLegend(svg, this['materials'], colorScale);
   }
-
   private createLegend(
     svg: any,
     materials: string[],
@@ -386,11 +479,11 @@ export class PlotEmissionsComponent implements OnInit {
     const legend = svg
       .append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(0, ${-40})`);
+      .attr('transform', `translate(-20, ${-40})`);
 
-    const legendItemWidth = 120;
+    const legendItemWidth = 80;
     const legendItemHeight = 17;
-    const legendPadding = 10;
+    const legendPadding = 0;
 
     legend
       .selectAll('.legend-item')
@@ -420,57 +513,7 @@ export class PlotEmissionsComponent implements OnInit {
       .attr('dy', '0.35em')
       .text((d: string) => d)
       .style('fill', '#000')
-      .style('font-size', '12px')
+      .style('font-size', '10px')
       .style('font-family', 'Arial');
   }
 }
-/* 
-  private createLegend(
-    svg: d3.Selection<any, unknown, null, undefined>,
-    materials: string[],
-    colorScale: d3.ScaleOrdinal<string, string>
-  ): void {
-    const margin = { top: 60, right: 50, bottom: 80, left: 90 };
-    const width = 450 - margin.left - margin.right;
-    const height = 350 - margin.top - margin.bottom;
-
-    const legend = svg
-      .append('g')
-      .attr(
-        'transform',
-        'translate(' + margin.left + ',' + (height + margin.top - 20) + ')'
-      );
-
-    const legendRectSize = 13;
-    const legendSpacing = 2;
-
-    const legendItems = legend
-      .selectAll('.legend-item')
-      .data(materials)
-      .enter()
-      .append('g')
-      .attr('class', 'legend-item')
-      .attr('material', (d) => d)
-      .attr(
-        'transform',
-        (d, i) => 'translate(0,' + i * (legendRectSize + legendSpacing) + ')'
-      );
-
-    legendItems
-      .append('rect')
-      .attr('width', legendRectSize)
-      .attr('height', legendRectSize)
-      .attr('material', (d) => d)
-      .style('fill', (d) => colorScale(d));
-
-    legendItems
-      .append('text')
-      .attr('x', legendRectSize + legendSpacing)
-      .attr('y', legendRectSize - legendSpacing)
-      .text((d) => d)
-      .style('font-family', 'Segoe UI')
-      .style('font-size', '13px');
-  }
-}
-
- */

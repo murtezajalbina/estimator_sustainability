@@ -6,6 +6,7 @@ import {
   DataServiceEmissions,
   SelectedItemService,
 } from '../cart.service';
+import { TransformationService } from '../transformation.service';
 
 import { SelectedValuesService, TableUpdateService } from '../measures.service';
 import { combineLatest } from 'rxjs';
@@ -20,10 +21,12 @@ import { MaterialRelatedMeasure } from '../material-related-measure';
 export class PlotCostsComponent implements OnInit {
   @ViewChild('chart', { static: true }) private chartContainer!: ElementRef;
   selectedItem: string = 'default';
+  costs: number[] = [];
 
   constructor(
     private selectedItemService: SelectedItemService,
-    private tableUpdateService: TableUpdateService
+    private tableUpdateService: TableUpdateService,
+    private driveData: TransformationService
   ) {}
 
   ngOnInit(): void {
@@ -33,6 +36,7 @@ export class PlotCostsComponent implements OnInit {
       this.selectedItem = selectedItem;
       this.createChart(selectedItem, table);
     });
+    console.log(this.selectedItem)
 
     this.tableUpdateService.rowAdded.subscribe(
       (tableData: MaterialRelatedMeasure[]) => {
@@ -47,23 +51,18 @@ export class PlotCostsComponent implements OnInit {
     table: MaterialRelatedMeasure[]
   ): void {
     let years: number[];
-    let dummycosts: number[];
+    let costs: number[];
     let dummyinvestment: number[];
     let newcosts: any = [];
 
-    if (selectedItem == 'Drive 1') {
-      years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-      dummycosts = [16000, 13500, 9900, 12500, 12400, 12200, 13200, 12000];
-      dummyinvestment = [15200, 13500, 9900, 12500, 12400, 12200, 13200, 12000];
-    } else {
-      years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-      dummycosts = [16000, 14000, 11000, 14000, 12400, 12200, 13200, 12000];
-      dummyinvestment = [
-        16000, 14000, 11000, 14000, 12400, 12200, 13200, 12000,
-      ];
-    }
+    years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030]
 
-    newcosts = [16000, 13500, 9900, 12500, 12400, 12200, 13200, 12000];
+    this.driveData.getCosts(this.selectedItem).subscribe((data) => {
+      this.costs = data;
+    });
+
+    newcosts = [...this.costs]; // Erstellt eine flache Kopie von costs und weist sie newcosts zu
+console.log()
     for (let i = 0; i <= table.length - 1; i++) {
       const lastRow = table[i];
       const year = lastRow.year;
@@ -84,7 +83,7 @@ export class PlotCostsComponent implements OnInit {
 
     const costdata: [number, number][] = years.map((year, index) => [
       year,
-      dummycosts[index],
+      this.costs[index],
     ]);
 
     const newcostsdata: [number, number][] = years.map((year, index) => [
@@ -93,7 +92,7 @@ export class PlotCostsComponent implements OnInit {
     ]);
 
     const maxcosts =
-      Math.max(Math.max(...dummycosts), Math.max(...newcosts)) + 4000;
+      Math.max(Math.max(...this.costs), Math.max(...newcosts)) + 4000;
 
     const margin = { top: 60, right: 50, bottom: 80, left: 90 };
     const width = 450 - margin.left - margin.right;
@@ -113,9 +112,8 @@ export class PlotCostsComponent implements OnInit {
     const area = d3
       .area<number>()
       .x((_, i: number) => xScale(years[i]) || 0)
-      .y0((_, i: number) => yScale(dummycosts[i]) || 0)
+      .y0((_, i: number) => yScale(this.costs[i]) || 0)
       .y1((d: any, i: number) => yScale(newcosts[i]) || 0);
-
 
     const svg = d3
       .select(this.chartContainer.nativeElement)
@@ -125,10 +123,7 @@ export class PlotCostsComponent implements OnInit {
       .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    const xAxis = d3
-      .axisBottom(x)
-      .tickValues(years) 
-      .tickFormat(d3.format('d'));
+    const xAxis = d3.axisBottom(x).tickValues(years).tickFormat(d3.format('d'));
 
     svg
       .append('g')

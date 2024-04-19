@@ -1,5 +1,5 @@
 <div class="product-selection mx-4">
   <select [(ngModel)]="selectedValue" class="form-select" aria-label="Default select example" (change)="handleSelectionChange()">
-    <option *ngFor="let item of arrayList" [value]="item.product">{{ item.product }}</option>
+    <option *ngFor="let item of arrayList" [value]="item">{{ item }}</option>
   </select>
 </div>
