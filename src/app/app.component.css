@@ -15,14 +15,14 @@
   padding-top: 20px;
 }
  
-.info-icon {
+/* .info-icon {
   position: absolute;
   right: 0;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
   padding-top: 20px;
-}
+} */
 
 
 .white_box {
@@ -50,13 +50,11 @@
  
 
 table {
-  width: 1460px;
+  width: 100%;
   border-collapse: collapse;
   overflow: hidden;
   font-family: "Segoe UI";
   border-radius: 10px;
-
-
 }
 
 
@@ -116,7 +114,7 @@ tbody tr:hover {
   /*    gap: 2rem; */
 }
  
-.info-icon:hover::after {
+/* .info-icon:hover::after {
   content: "More information";
   position: absolute;
   background-color: #333;
@@ -127,7 +125,7 @@ tbody tr:hover {
   left: 100%;
   transform: translateY(-50%);
   white-space: nowrap;
-}
+} */
 
 .disabled-dropdown {
   background-color: #f4f4f4; /* Neue Hintergrundfarbe für deaktivierte Dropdowns */

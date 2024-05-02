@@ -16,7 +16,7 @@ import { TransformationService } from '../transformation.service';
   standalone: true,
   imports: [],
   templateUrl: './plot-single-product.component.html',
-  styleUrl: './plot-single-product.component.css',
+  styleUrls: ['../app.component.css'],
 })
 export class PlotSingleProductComponent implements OnInit {
   [x: string]: any;
